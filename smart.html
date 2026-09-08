@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AulaAcessível — Smart Card</title>
+
+  <style>
+    :root {
+      --azul: #1f4e79;
+      --azul-claro: #eaf2f8;
+      --texto: #1f2937;
+      --cinza: #6b7280;
+      --borda: #d9e1e8;
+      --fundo: #f7f9fb;
+      --branco: #ffffff;
+      --verde: #2e8b57;
+      --laranja: #d96c1a;
+      --amarelo: #e3b100;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--fundo);
+      color: var(--texto);
+    }
+
+    .topo {
+      background: var(--azul);
+      color: white;
+      padding: 18px 20px;
+    }
+
+    .topo-conteudo {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .marca {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .submarca {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 24px auto;
+      padding: 0 16px 40px;
+    }
+
+    .cartao {
+      background: var(--branco);
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    }
+
+    .etiqueta {
+      display: inline-block;
+      background: var(--azul-claro);
+      color: var(--azul);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      line-height: 1.15;
+    }
+
+    .descricao {
+      margin: 0 0 24px;
+      color: var(--cinza);
+      line-height: 1.5;
+    }
+
+    .abas {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .abas button {
+      border: 1px solid var(--azul);
+      background: white;
+      color: var(--azul);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .abas button.ativo {
+      background: var(--azul);
+      color: white;
+    }
+
+    .secao {
+      margin-top: 24px;
+    }
+
+    .secao h2 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    ul, ol {
+      margin-top: 8px;
+      padding-left: 22px;
+      line-height: 1.6;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--borda);
+      background: #fff;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+    }
+
+    .acoes {
+      display: grid;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .botao {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .primario {
+      background: var(--azul);
+      color: white;
+    }
+
+    .secundario {
+      border: 1px solid var(--azul);
+      color: var(--azul);
+      background: white;
+    }
+
+    .aviso {
+      background: #fff8e1;
+      border-left: 4px solid var(--amarelo);
+      padding: 12px 14px;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+
+    .erro {
+      text-align: center;
+      padding: 30px;
+    }
+
+    .oculto {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.55rem;
+      }
+
+      .cartao {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topo">
+    <div class="topo-conteudo">
+      <p class="marca">AulaAcessível</p>
+      <p class="submarca">Módulo Química — Smart Card</p>
+    </div>
+  </header>
+
+  <main>
+    <div id="conteudo" class="cartao"></div>
+  </main>
+
+  <script>
+    const aulas = {
+      "seguranca-laboratorio": {
+        titulo: "Segurança no Laboratório",
+        descricao: "Orientações essenciais para participação segura e organizada em atividades práticas de Química.",
+        objetivo: "Reconhecer e aplicar cuidados básicos de segurança em laboratório.",
+        materiais: [
+          "Óculos de proteção",
+          "Jaleco",
+          "Luvas, quando necessário",
+          "Roteiro da atividade"
+        ],
+        seguranca: [
+          "Usar os EPIs indicados",
+          "Não provar substâncias",
+          "Não cheirar diretamente os reagentes",
+          "Não misturar materiais sem orientação",
+          "Manter a bancada organizada"
+        ],
+        sensorial: [
+          "Pode haver cheiros",
+          "Pode haver movimentação na bancada",
+          "Pode haver ruídos",
+          "Pode haver uso de luvas e óculos"
+        ],
+        etapas: [
+          "Ouvir a orientação inicial",
+          "Conferir os EPIs",
+          "Observar os materiais",
+          "Revisar as regras de segurança",
+          "Iniciar a atividade somente após orientação"
+        ],
+        cards: [
+          "OUVIR ORIENTAÇÃO",
+          "USAR EPI",
+          "USAR ÓCULOS",
+          "USAR JALECO",
+          "NÃO PROVAR",
+          "NÃO CHEIRAR DIRETAMENTE",
+          "MANTER BANCADA ORGANIZADA"
+        ]
+      },
+
+      "densidade-misturas": {
+        titulo: "Densidade e Misturas",
+        descricao: "Atividade para observar diferenças de densidade e comportamento de materiais em misturas.",
+        objetivo: "Relacionar densidade, composição e comportamento de diferentes materiais.",
+        materiais: [
+          "Béqueres",
+          "Água",
+          "Óleo",
+          "Materiais sólidos ou líquidos de diferentes densidades"
+        ],
+        seguranca: [
+          "Usar óculos, se necessário",
+          "Evitar derramamentos",
+          "Manter a bancada organizada"
+        ],
+        sensorial: [
+          "Atividade com líquidos",
+          "Pode haver mudança visual",
+          "Pode haver movimentação na bancada"
+        ],
+        etapas: [
+          "Ler o roteiro",
+          "Observar os materiais",
+          "Adicionar os materiais",
+          "Observar o comportamento da mistura",
+          "Comparar os resultados",
+          "Registrar as observações"
+        ],
+        cards: [
+          "LER ROTEIRO",
+          "VER MATERIAIS",
+          "OBSERVAR",
+          "COMPARAR RESULTADOS",
+          "REGISTRAR"
+        ]
+      },
+
+      "separacao-misturas": {
+        titulo: "Separação de Misturas",
+        descricao: "Atividade prática envolvendo técnicas de separação de componentes de uma mistura.",
+        objetivo: "Identificar e aplicar métodos de separação adequados.",
+        materiais: [
+          "Misturas preparadas",
+          "Béqueres",
+          "Funil",
+          "Papel-filtro",
+          "Outros materiais conforme a técnica"
+        ],
+        seguranca: [
+          "Usar EPI quando indicado",
+          "Cuidado com vidrarias",
+          "Descartar no local indicado"
+        ],
+        sensorial: [
+          "Atividade com líquidos",
+          "Pode haver espera",
+          "Pode haver movimentação na bancada"
+        ],
+        etapas: [
+          "Ler o roteiro",
+          "Conferir os materiais",
+          "Montar o procedimento",
+          "Executar a separação",
+          "Aguardar quando necessário",
+          "Observar o resultado",
+          "Registrar"
+        ],
+        cards: [
+          "LER ROTEIRO",
+          "VER MATERIAIS",
+          "MANIPULAR COM ORIENTAÇÃO",
+          "AGUARDAR",
+          "OBSERVAR",
+          "REGISTRAR"
+        ]
+      },
+
+      "evidencias-reacoes": {
+        titulo: "Evidências de Reações Químicas",
+        descricao: "Observação de indícios que podem indicar a ocorrência de uma transformação química.",
+        objetivo: "Reconhecer evidências macroscópicas de transformações químicas.",
+        materiais: [
+          "Reagentes definidos pelo professor",
+          "Tubos de ensaio ou béqueres",
+          "Roteiro de observação"
+        ],
+        seguranca: [
+          "Não misturar sem autorização",
+          "Não provar",
+          "Usar os EPIs indicados"
+        ],
+        sensorial: [
+          "Pode haver mudança de cor",
+          "Pode haver calor",
+          "Pode haver cheiro",
+          "Pode haver formação de gás"
+        ],
+        etapas: [
+          "Observar os materiais",
+          "Ouvir as orientações",
+          "Realizar a mistura orientada",
+          "Observar alterações",
+          "Comparar resultados",
+          "Registrar as evidências"
+        ],
+        cards: [
+          "OUVIR ORIENTAÇÃO",
+          "OBSERVAR",
+          "MISTURAR",
+          "COMPARAR RESULTADOS",
+          "REGISTRAR"
+        ]
+      },
+
+      "preparo-solucoes": {
+        titulo: "Preparo de Soluções",
+        descricao: "Organização visual e acessível das etapas utilizadas no preparo de uma solução.",
+        objetivo: "Preparar uma solução seguindo uma sequência de procedimentos laboratoriais.",
+        materiais: [
+          "Balança",
+          "Espátula",
+          "Béquer",
+          "Balão volumétrico",
+          "Soluto",
+          "Solvente"
+        ],
+        seguranca: [
+          "Usar jaleco",
+          "Usar óculos",
+          "Manipular reagentes com orientação",
+          "Manter a bancada organizada"
+        ],
+        sensorial: [
+          "Atividade com líquidos",
+          "Pode haver espera",
+          "Pode haver movimentação na bancada"
+        ],
+        etapas: [
+          "Ler o roteiro",
+          "Conferir os materiais",
+          "Medir a quantidade de soluto",
+          "Dissolver o soluto",
+          "Transferir a solução",
+          "Completar o volume",
+          "Homogeneizar",
+          "Registrar"
+        ],
+        cards: [
+          "LER ROTEIRO",
+          "VER MATERIAIS",
+          "USAR EPI",
+          "MEDIR",
+          "MISTURAR",
+          "REGISTRAR"
+        ]
+      },
+
+      "indicadores-ph": {
+        titulo: "Indicadores e pH",
+        descricao: "Atividade para observar o comportamento de indicadores em meios ácidos e básicos.",
+        objetivo: "Relacionar mudanças de cor de indicadores com a acidez ou basicidade do meio.",
+        materiais: [
+          "Soluções de teste",
+          "Indicador ácido-base",
+          "Tubos de ensaio ou béqueres",
+          "Conta-gotas"
+        ],
+        seguranca: [
+          "Usar óculos",
+          "Não provar as soluções",
+          "Descartar no local indicado"
+        ],
+        sensorial: [
+          "Pode haver mudança de cor",
+          "Atividade com líquidos",
+          "Pode haver movimentação na bancada"
+        ],
+        etapas: [
+          "Ler o roteiro",
+          "Observar as amostras",
+          "Adicionar o indicador",
+          "Observar a mudança de cor",
+          "Comparar os resultados",
+          "Registrar"
+        ],
+        cards: [
+          "LER ROTEIRO",
+          "OBSERVAR",
+          "MANIPULAR COM ORIENTAÇÃO",
+          "PODE TER MUDANÇA DE COR",
+          "COMPARAR RESULTADOS",
+          "REGISTRAR"
+        ]
+      },
+
+      "titulacao-acido-base": {
+        titulo: "Titulação Ácido-Base",
+        descricao: "Atividade prática de análise de uma solução por meio de titulação ácido-base.",
+        objetivo: "Acompanhar uma titulação reconhecendo suas etapas e o ponto final.",
+        materiais: [
+          "Bureta",
+          "Erlenmeyer",
+          "Soluções utilizadas na titulação",
+          "Indicador"
+        ],
+        seguranca: [
+          "Usar jaleco",
+          "Usar óculos",
+          "Manipular soluções com orientação",
+          "Cuidado com vidrarias"
+        ],
+        sensorial: [
+          "Atividade com líquidos",
+          "Pode haver espera",
+          "Pode haver mudança de cor"
+        ],
+        etapas: [
+          "Ler o roteiro",
+          "Montar os materiais",
+          "Preparar a amostra",
+          "Adicionar o titulante gradualmente",
+          "Observar a mudança de cor",
+          "Registrar o volume utilizado",
+          "Organizar a bancada"
+        ],
+        cards: [
+          "LER ROTEIRO",
+          "VER MATERIAIS",
+          "USAR EPI",
+          "MANIPULAR COM ORIENTAÇÃO",
+          "OBSERVAR",
+          "MEDIR",
+          "REGISTRAR"
+        ]
+      },
+
+      "termoquimica": {
+        titulo: "Termoquímica",
+        descricao: "Atividade para observar e interpretar variações de temperatura associadas a processos químicos.",
+        objetivo: "Relacionar variações de temperatura a trocas de energia.",
+        materiais: [
+          "Recipientes adequados",
+          "Termômetro",
+          "Substâncias definidas pelo professor"
+        ],
+        seguranca: [
+          "Cuidado com calor",
+          "Usar EPI quando indicado",
+          "Manipular materiais com orientação"
+        ],
+        sensorial: [
+          "Pode haver calor",
+          "Pode haver frio",
+          "Pode haver espera"
+        ],
+        etapas: [
+          "Ler o roteiro",
+          "Medir a temperatura inicial",
+          "Realizar o procedimento",
+          "Aguardar quando necessário",
+          "Medir a temperatura final",
+          "Comparar resultados",
+          "Registrar"
+        ],
+        cards: [
+          "LER ROTEIRO",
+          "MEDIR",
+          "MANIPULAR COM ORIENTAÇÃO",
+          "AGUARDAR",
+          "COMPARAR RESULTADOS",
+          "REGISTRAR"
+        ]
+      },
+
+      "eletroquimica": {
+        titulo: "Eletroquímica e Corrosão",
+        descricao: "Atividade para observar processos eletroquímicos e fenômenos relacionados à corrosão.",
+        objetivo: "Relacionar processos de oxidação e redução a fenômenos observáveis.",
+        materiais: [
+          "Eletrodos",
+          "Soluções eletrolíticas",
+          "Cabos ou dispositivos de medição",
+          "Materiais metálicos"
+        ],
+        seguranca: [
+          "Usar os EPIs indicados",
+          "Não tocar soluções sem orientação",
+          "Descartar corretamente os materiais"
+        ],
+        sensorial: [
+          "Atividade com líquidos",
+          "Pode haver movimentação na bancada",
+          "Pode haver espera"
+        ],
+        etapas: [
+          "Observar os materiais",
+          "Montar o sistema",
+          "Realizar as conexões",
+          "Observar o fenômeno",
+          "Comparar resultados",
+          "Registrar"
+        ],
+        cards: [
+          "VER MATERIAIS",
+          "MANIPULAR COM ORIENTAÇÃO",
+          "OBSERVAR",
+          "AGUARDAR",
+          "COMPARAR RESULTADOS",
+          "REGISTRAR"
+        ]
+      },
+
+      "quimica-organica": {
+        titulo: "Química Orgânica",
+        descricao: "Modelo para organização de atividades envolvendo substâncias e funções orgânicas.",
+        objetivo: "Reconhecer estruturas, propriedades ou transformações relacionadas a compostos orgânicos.",
+        materiais: [
+          "Modelos moleculares",
+          "Fórmulas ou estruturas",
+          "Materiais definidos conforme a atividade"
+        ],
+        seguranca: [
+          "Seguir as orientações específicas da atividade",
+          "Usar EPI em atividades práticas"
+        ],
+        sensorial: [
+          "Pode haver trabalho em grupo",
+          "Pode haver contato tátil com modelos"
+        ],
+        etapas: [
+          "Ouvir a orientação",
+          "Observar os modelos ou estruturas",
+          "Comparar características",
+          "Responder às questões",
+          "Registrar as conclusões"
+        ],
+        cards: [
+          "OUVIR ORIENTAÇÃO",
+          "OBSERVAR",
+          "COMPARAR RESULTADOS",
+          "RESPONDER PERGUNTAS",
+          "REGISTRAR",
+          "CONCLUIR"
+        ]
+      }
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const aula = aulas[id];
+
+    const conteudo = document.getElementById("conteudo");
+
+    function lista(itens) {
+      return itens.map(item => `<li>${item}</li>`).join("");
+    }
+
+    function chips(itens) {
+      return itens.map(item => `<span class="chip">${item}</span>`).join("");
+    }
+
+    function renderizarAluno() {
+      conteudo.innerHTML = `
+        <span class="etiqueta">MODO ESTUDANTE</span>
+        <h1>${aula.titulo}</h1>
+        <p class="descricao">${aula.descricao}</p>
+
+        <div class="abas">
+          <button class="ativo">Estudante</button>
+          <button onclick="renderizarProfessor()">Professor</button>
+        </div>
+
+        <section class="secao">
+          <h2>O que vamos fazer</h2>
+          <p>${aula.objetivo}</p>
+        </section>
+
+        <section class="secao">
+          <h2>Materiais</h2>
+          <ul>${lista(aula.materiais)}</ul>
+        </section>
+
+        <section class="secao">
+          <h2>Segurança</h2>
+          <ul>${lista(aula.seguranca)}</ul>
+        </section>
+
+        <section class="secao">
+          <h2>Atenção sensorial</h2>
+          <ul>${lista(aula.sensorial)}</ul>
+        </section>
+
+        <section class="secao">
+          <h2>Sequência da atividade</h2>
+          <ol>${lista(aula.etapas)}</ol>
+        </section>
+
+        <div class="acoes">
+          <a class="botao secundario"
+             href="index.html">
+            Voltar ao AulaAcessível
+          </a>
+        </div>
+      `;
+    }
+
+    function renderizarProfessor() {
+      conteudo.innerHTML = `
+        <span class="etiqueta">MODO PROFESSOR</span>
+        <h1>${aula.titulo}</h1>
+        <p class="descricao">${aula.descricao}</p>
+
+        <div class="abas">
+          <button onclick="renderizarAluno()">Estudante</button>
+          <button class="ativo">Professor</button>
+        </div>
+
+        <section class="secao">
+          <h2>Objetivo</h2>
+          <p>${aula.objetivo}</p>
+        </section>
+
+        <section class="secao">
+          <h2>Materiais</h2>
+          <ul>${lista(aula.materiais)}</ul>
+        </section>
+
+        <section class="secao">
+          <h2>Segurança</h2>
+          <ul>${lista(aula.seguranca)}</ul>
+        </section>
+
+        <section class="secao">
+          <h2>Possíveis aspectos sensoriais</h2>
+          <ul>${lista(aula.sensorial)}</ul>
+        </section>
+
+        <section class="secao">
+          <h2>Sequência sugerida</h2>
+          <ol>${lista(aula.etapas)}</ol>
+        </section>
+
+        <section class="secao">
+          <h2>Cards recomendados</h2>
+          <div class="chips">
+            ${chips(aula.cards)}
+          </div>
+        </section>
+
+        <section class="secao">
+          <div class="aviso">
+            Esta ficha funciona como ponto de partida.
+            O professor deve revisar os materiais, riscos,
+            necessidades da turma e características da atividade
+            antes da aplicação.
+          </div>
+        </section>
+
+        <div class="acoes">
+          <a class="botao primario"
+             href="index.html">
+            Abrir AulaAcessível
+          </a>
+
+          <a class="botao secundario"
+             href="index.html">
+            Criar ou adaptar um plano
+          </a>
+        </div>
+      `;
+    }
+
+    if (!id) {
+      conteudo.innerHTML = `
+        <div class="erro">
+          <h1>Smart Card AulaAcessível</h1>
+          <p>
+            Esta página deve ser aberta a partir de um Smart Card
+            ou de uma URL contendo o identificador da atividade.
+          </p>
+          <a class="botao primario" href="index.html">
+            Abrir AulaAcessível
+          </a>
+        </div>
+      `;
+    } else if (!aula) {
+      conteudo.innerHTML = `
+        <div class="erro">
+          <h1>Conteúdo não encontrado</h1>
+          <p>
+            O Smart Card informado ainda não possui uma ficha cadastrada.
+          </p>
+          <a class="botao primario" href="index.html">
+            Abrir AulaAcessível
+          </a>
+        </div>
+      `;
+    } else {
+      renderizarAluno();
+    }
+  </script>
+</body>
+</html>
