@@ -601,7 +601,22 @@
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
     const aula = aulas[id];
+    const PROFESSOR_PIN = "2026";
 
+const modeloDoApp = {
+  "seguranca-laboratorio": "lqm1-seguranca-vidrarias",
+  "densidade-misturas": "qmc1-materia-misturas",
+  "separacao-misturas": "lqm1-densidade-filtracao",
+  "evidencias-reacoes": "qmc3-evidencias-reacoes",
+  "preparo-solucoes": "lqm1-solucoes-titulacao-ph",
+  "indicadores-ph": "qmc5-equilibrio-ph",
+  "titulacao-acido-base": "lqm1-solucoes-titulacao-ph",
+  "termoquimica": "qmc4-termo-cinetica",
+  "eletroquimica": "qmc5-eletro-corrosao",
+  "quimica-organica": "qmc6-organica-funcoes"
+};
+
+const modeloSelecionado = modeloDoApp[id];
     const conteudo = document.getElementById("conteudo");
 
     function lista(itens) {
@@ -620,7 +635,7 @@
 
         <div class="abas">
           <button class="ativo">Estudante</button>
-          <button onclick="renderizarProfessor()">Professor</button>
+          <button onclick="solicitarProfessor()">🔒 Professor</button>
         </div>
 
         <section class="secao">
@@ -657,73 +672,130 @@
       `;
     }
 
-    function renderizarProfessor() {
-      conteudo.innerHTML = `
-        <span class="etiqueta">MODO PROFESSOR</span>
-        <h1>${aula.titulo}</h1>
-        <p class="descricao">${aula.descricao}</p>
+    function solicitarProfessor() {
+  if (sessionStorage.getItem("aulaAcessivelProfessor") === "ok") {
+    renderizarProfessor();
+    return;
+  }
 
-        <div class="abas">
-          <button onclick="renderizarAluno()">Estudante</button>
-          <button class="ativo">Professor</button>
-        </div>
+  const pin = prompt("Digite o PIN da área do professor:");
 
-        <section class="secao">
-          <h2>Objetivo</h2>
-          <p>${aula.objetivo}</p>
-        </section>
+  if (pin === null) return;
 
-        <section class="secao">
-          <h2>Materiais</h2>
-          <ul>${lista(aula.materiais)}</ul>
-        </section>
+  if (pin === PROFESSOR_PIN) {
+    sessionStorage.setItem("aulaAcessivelProfessor", "ok");
+    renderizarProfessor();
+  } else {
+    alert("PIN incorreto.");
+  }
+}
 
-        <section class="secao">
-          <h2>Segurança</h2>
-          <ul>${lista(aula.seguranca)}</ul>
-        </section>
+function sairModoProfessor() {
+  sessionStorage.removeItem("aulaAcessivelProfessor");
+  renderizarAluno();
+}
 
-        <section class="secao">
-          <h2>Possíveis aspectos sensoriais</h2>
-          <ul>${lista(aula.sensorial)}</ul>
-        </section>
+async function compartilharAula() {
+  const dados = {
+    title: `AulaAcessível — ${aula.titulo}`,
+    text: `Acesse a ficha da aula: ${aula.titulo}`,
+    url: window.location.href
+  };
 
-        <section class="secao">
-          <h2>Sequência sugerida</h2>
-          <ol>${lista(aula.etapas)}</ol>
-        </section>
-
-        <section class="secao">
-          <h2>Cards recomendados</h2>
-          <div class="chips">
-            ${chips(aula.cards)}
-          </div>
-        </section>
-
-        <section class="secao">
-          <div class="aviso">
-            Esta ficha funciona como ponto de partida.
-            O professor deve revisar os materiais, riscos,
-            necessidades da turma e características da atividade
-            antes da aplicação.
-          </div>
-        </section>
-
-        <div class="acoes">
-          <a class="botao primario"
-             href="index.html">
-            Abrir AulaAcessível
-          </a>
-
-          <a class="botao secundario"
-             href="index.html">
-            Criar ou adaptar um plano
-          </a>
-        </div>
-      `;
+  if (navigator.share) {
+    try {
+      await navigator.share(dados);
+      return;
+    } catch (erro) {
+      if (erro.name === "AbortError") return;
     }
+  }
 
-    if (!id) {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    alert("Link copiado para a área de transferência.");
+  } catch (erro) {
+    prompt("Copie o link da aula:", window.location.href);
+  }
+}
+
+function renderizarProfessor() {
+  conteudo.innerHTML = `
+    <span class="etiqueta">MODO PROFESSOR</span>
+    <h1>${aula.titulo}</h1>
+    <p class="descricao">${aula.descricao}</p>
+
+    <div class="abas">
+      <button onclick="renderizarAluno()">Estudante</button>
+      <button class="ativo">Professor</button>
+    </div>
+
+    <section class="secao">
+      <h2>Objetivo</h2>
+      <p>${aula.objetivo}</p>
+    </section>
+
+    <section class="secao">
+      <h2>Materiais</h2>
+      <ul>${lista(aula.materiais)}</ul>
+    </section>
+
+    <section class="secao">
+      <h2>Segurança</h2>
+      <ul>${lista(aula.seguranca)}</ul>
+    </section>
+
+    <section class="secao">
+      <h2>Possíveis aspectos sensoriais</h2>
+      <ul>${lista(aula.sensorial)}</ul>
+    </section>
+
+    <section class="secao">
+      <h2>Sequência sugerida</h2>
+      <ol>${lista(aula.etapas)}</ol>
+    </section>
+
+    <section class="secao">
+      <h2>Cards recomendados</h2>
+      <div class="chips">
+        ${chips(aula.cards)}
+      </div>
+    </section>
+
+    <section class="secao">
+      <div class="aviso">
+        Esta ficha funciona como ponto de partida.
+        O professor deve revisar materiais, riscos,
+        necessidades da turma e características da atividade
+        antes da aplicação.
+      </div>
+    </section>
+
+    <div class="acoes">
+
+      <a class="botao primario"
+         href="index.html?modelo=${encodeURIComponent(modeloSelecionado)}">
+        ✨ Adaptar esta aula no AulaAcessível
+      </a>
+
+      <button class="botao secundario"
+              onclick="window.print()">
+        🖨️ Imprimir / Salvar como PDF
+      </button>
+
+      <button class="botao secundario"
+              onclick="compartilharAula()">
+        ↗ Compartilhar / Copiar link
+      </button>
+
+      <button class="botao secundario"
+              onclick="sairModoProfessor()">
+        🔒 Sair da área do professor
+      </button>
+
+    </div>
+  `;
+}
       conteudo.innerHTML = `
         <div class="erro">
           <h1>Smart Card AulaAcessível</h1>
