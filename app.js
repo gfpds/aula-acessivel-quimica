@@ -764,16 +764,98 @@ function makeTeacherGuide(level){
   };
 }
 function recommendCards(plan){
-  const rotina = CARD_BANK.rotina.filter(c => plan.trail.some(t => similar(t,c))).slice(0,14);
-  const seguranca = CARD_BANK.seguranca.filter(c => plan.safety.some(t => similar(t,c))).slice(0,10);
-  let sensorial = CARD_BANK.sensorial.filter(c => plan.sensory.some(t => similar(t,c))).slice(0,8);
-  if(plan.sensory.length && !sensorial.includes('Semáforo sensorial')) sensorial.push('Semáforo sensorial');
-  const comunicacao = unique(['Preciso de ajuda','Pode repetir?','Preciso de mais tempo',...CARD_BANK.comunicacao.filter(c => plan.communication.some(t => similar(t,c)))]).slice(0,9);
-  return {rotina:unique([...rotina, ...plan.trail.slice(0,8)]), seguranca:unique([...seguranca]), sensorial:unique([...sensorial]), comunicacao:unique([...comunicacao])};
+  const rotina = CARD_BANK.rotina
+    .filter(c => plan.trail.some(t => similar(t,c)))
+    .slice(0,14);
+
+  const seguranca = CARD_BANK.seguranca
+    .filter(c => plan.safety.some(t => similar(t,c)))
+    .slice(0,10);
+
+  const sensorial = CARD_BANK.sensorial
+    .filter(c => plan.sensory.some(t => similar(t,c)))
+    .slice(0,8);
+
+  const comunicacao = unique([
+    'Preciso de ajuda',
+    'Pode repetir?',
+    'Preciso de mais tempo',
+    ...CARD_BANK.comunicacao.filter(c =>
+      plan.communication.some(t => similar(t,c))
+    )
+  ]).slice(0,9);
+
+  return {
+    rotina: unique(rotina),
+    seguranca: unique(seguranca),
+    sensorial: unique(sensorial),
+    comunicacao: unique(comunicacao)
+  };
 }
+function normalizeText(text){
+  return String(text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function similar(a,b){
-  const x=a.toLowerCase(), y=b.toLowerCase();
-  return x.includes(y.toLowerCase()) || y.includes(x) || x.split(' ').some(w=>w.length>4 && y.includes(w));
+  const x = normalizeText(a);
+  const y = normalizeText(b);
+
+  if (!x || !y) return false;
+
+  // Correspondência direta
+  if (x.includes(y) || y.includes(x)) return true;
+
+  // Algumas formas equivalentes usadas nos roteiros
+  const aliases = [
+    ['ouvir explicacao', 'acompanhar explicacao'],
+    ['ler problema', 'ler enunciado'],
+    ['resolver com apoio', 'resolver exercicio'],
+    ['colocar epi', 'usar epi']
+  ];
+
+  for (const [p1, p2] of aliases) {
+    if (
+      (x.includes(p1) && y.includes(p2)) ||
+      (x.includes(p2) && y.includes(p1))
+    ) {
+      return true;
+    }
+  }
+
+  // Desconsidera palavras muito genéricas
+  const stopWords = new Set([
+    'pode', 'haver', 'ter', 'usar', 'uso',
+    'com', 'sem', 'para', 'uma', 'mais',
+    'quando', 'antes', 'depois',
+    'atividade', 'aula',
+    'preciso', 'quero', 'posso'
+  ]);
+
+  const palavrasX = x
+    .split(' ')
+    .filter(w => w.length >= 4 && !stopWords.has(w));
+
+  const palavrasY = y
+    .split(' ')
+    .filter(w => w.length >= 4 && !stopWords.has(w));
+
+  if (!palavrasX.length || !palavrasY.length) return false;
+
+  const comuns = palavrasY.filter(w => palavrasX.includes(w)).length;
+
+  // Uma palavra basta somente quando um dos lados
+  // tem apenas um termo realmente significativo.
+  if (Math.min(palavrasX.length, palavrasY.length) === 1) {
+    return comuns === 1;
+  }
+
+  return comuns >= 2;
 }
 
 function fillEditorsFromPlan(){
