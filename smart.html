@@ -1067,18 +1067,20 @@ Object.assign(aulas, {
     const PROFESSOR_PIN = "2026";
 
 const modeloDoApp = {
+  "modelos-atomicos": "qmc1-atomos-tabela",
+  "ligacoes-quimicas": "qmc2-ligacoes",
+  "estequiometria": "qmc3-estequiometria",
+  "acidos-bases": "qmc3-acidos-bases",
+  "equilibrio-ph": "qmc5-equilibrio-ph",
+  "funcoes-organicas": "qmc6-organica-funcoes",
   "seguranca-laboratorio": "lqm1-seguranca-vidrarias",
-  "densidade-misturas": "qmc1-materia-misturas",
-  "separacao-misturas": "lqm1-densidade-filtracao",
+  "densidade-filtracao": "lqm1-densidade-filtracao",
   "evidencias-reacoes": "qmc3-evidencias-reacoes",
   "preparo-solucoes": "lqm1-solucoes-titulacao-ph",
-  "indicadores-ph": "qmc5-equilibrio-ph",
   "titulacao-acido-base": "lqm1-solucoes-titulacao-ph",
-  "termoquimica": "qmc4-termo-cinetica",
-  "eletroquimica": "qmc5-eletro-corrosao",
-  "quimica-organica": "qmc6-organica-funcoes"
+  "eletroquimica": "qmc5-eletro-corrosao"
 };
-
+    
 const modeloSelecionado = modeloDoApp[id];
     const conteudo = document.getElementById("conteudo");
 
