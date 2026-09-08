@@ -356,10 +356,79 @@ const BARRIER_BANK = {
 };
 
 const CARD_BANK = {
-  rotina:['Apresentar objetivo','Ouvir orientação','Ler roteiro','Observar materiais','Usar EPI','Separar materiais','Medir','Manipular com orientação','Misturar','Aquecer','Aguardar','Comparar resultados','Registrar','Responder perguntas','Descartar','Limpar bancada','Guardar materiais','Concluir'],
-  seguranca:['Usar óculos','Usar luvas','Usar jaleco','Não provar','Não cheirar diretamente','Não tocar sem autorização','Não misturar sem autorização','Cuidado com vidro','Cuidado com calor','Descartar no local indicado','Chamar o professor','Manter bancada organizada'],
-  sensorial:['Pode ter cheiro','Pode ter barulho','Pode ter luz forte','Pode ter calor','Atividade com líquidos','Uso de luvas','Uso de óculos','Pode haver espera','Pode haver trabalho em grupo','Pausa combinada','Semáforo sensorial'],
-  comunicacao:['Preciso de ajuda','Pode repetir?','Preciso de mais tempo','Preciso de pausa','Estou desconfortável','Não entendi','Pode conferir?','Quero observar de novo','Prefiro registrar por escrito','Posso tentar de novo']
+  rotina: [
+    'Ouvir orientação',
+    'Ler roteiro',
+    'Ver materiais',
+    'Usar EPI',
+    'Observar',
+    'Manipular com orientação',
+    'Medir',
+    'Misturar',
+    'Aquecer',
+    'Aguardar',
+    'Comparar resultados',
+    'Registrar',
+    'Responder perguntas',
+    'Descartar',
+    'Limpar bancada',
+    'Guardar materiais',
+    'Concluir',
+    'Acompanhar explicação',
+    'Analisar exemplo',
+    'Ler enunciado',
+    'Resolver exercício',
+    'Usar tabela / gráfico',
+    'Usar calculadora',
+    'Revisar resposta'
+  ],
+
+  seguranca: [
+    'Usar óculos',
+    'Usar luvas',
+    'Usar jaleco',
+    'Não provar',
+    'Não cheirar diretamente',
+    'Não misturar sem autorização',
+    'Cuidado com vidro',
+    'Cuidado com calor',
+    'Descartar no local indicado',
+    'Manter bancada organizada',
+    'Chamar o professor',
+    'Lavar as mãos',
+    'Não correr',
+    'Prender o cabelo'
+  ],
+
+  sensorial: [
+    'Pode ter cheiro',
+    'Pode ter barulho',
+    'Pode ter luz forte',
+    'Pode ter calor',
+    'Pode ter frio',
+    'Atividade com líquidos',
+    'Pode haver espera',
+    'Pode haver trabalho em grupo',
+    'Pode haver movimento na bancada',
+    'Pausa combinada',
+    'Pode ter contato tátil',
+    'Pode ter mudança de cor'
+  ],
+
+  comunicacao: [
+    'Preciso de ajuda',
+    'Pode repetir?',
+    'Preciso de mais tempo',
+    'Preciso de pausa',
+    'Estou desconfortável',
+    'Não entendi',
+    'Pode conferir?',
+    'Quero observar de novo',
+    'Posso tentar de novo?',
+    'Prefiro registrar por escrito',
+    'Posso fazer em dupla?',
+    'Posso ver um exemplo?'
+  ]
 };
 
 let state = {
