@@ -392,8 +392,32 @@ function loadLocal(){
 
 function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2200); }
 
+function applyModelFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  const modelId = params.get("modelo");
+
+  if (!modelId) return;
+
+  const exists = MODELS.some(m => m.id === modelId);
+
+  if (!exists) return;
+
+  state.mode = "model";
+  state.selectedModelId = modelId;
+  state.step = 1;
+  state.plan = null;
+
+  state.barriers = {
+    cognitivas: [],
+    sensoriais: [],
+    comunicacionais: [],
+    seguranca: []
+  };
+}
+
 function init(){
   loadLocal();
+  applyModelFromUrl();
   populateComponentFilter();
   renderOptions();
   renderModelGrid();
