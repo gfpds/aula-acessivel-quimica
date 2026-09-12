@@ -982,19 +982,23 @@ function studentIconSvg(text){
   const x=normalizeText(text);
   if(/ouvir|explicacao|orientacao/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10H4z"/><path d="M16 9c1.3 1.7 1.3 4.3 0 6M18.5 6.5c2.8 3 2.8 8 0 11"/></svg>';
   if(/ler|roteiro|enunciado/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="M9 10h6M9 14h6M9 18h4"/></svg>';
-  if(/observar|ver|comparar/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.5"/></svg>';
+  if(/\b(?:observar|ver|comparar|identificar|localizar)\b/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.5"/></svg>';
   if(/medir|pesar|massa|volume/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19L19 5l2 2L7 21z"/><path d="M9 17l-2-2M12 14l-2-2M15 11l-2-2"/></svg>';
-  if(/mistur|manipul|aquecer|material|epi/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5l-5 9a3 3 0 0 0 2.6 4.5h8.8A3 3 0 0 0 19 17l-5-9V3"/><path d="M7.5 16h9"/></svg>';
-  if(/calcul|resolver|exercicio/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2M8 18h2M14 18h2"/></svg>';
-  if(/registrar|anotar|responder/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/></svg>';
+  if(/mistur|manipul|aquecer|material|epi|montar|transferir|adicionar|dissolver|homogeneizar/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5l-5 9a3 3 0 0 0 2.6 4.5h8.8A3 3 0 0 0 19 17l-5-9V3"/><path d="M7.5 16h9"/></svg>';
+  if(/calcul|resolver|exercicio|balancear|equacao/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2M8 18h2M14 18h2"/></svg>';
+  if(/registrar|anotar|responder|concluir/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/></svg>';
   return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M8.5 12l2.3 2.3 4.8-5"/></svg>';
+}
+function studentSafetyItems(items){
+  const filtered=(items||[]).filter(item=>!/sem manipulacao quimica/.test(normalizeText(item)));
+  return filtered.length ? filtered.slice(0,3) : ['Organize seus materiais e acompanhe as orientações da aula.'];
 }
 function renderStudent(p){
   const steps=(p.student||[]).slice(0,9);
   const communication=(p.communication||[]).slice(0,4);
-  const safety=(p.safety||[]).slice(0,3);
+  const safety=studentSafetyItems(p.safety);
   const sensory=(p.sensory||[]).slice(0,3);
-  return `<section class="student-sheet"><header class="student-header"><div><span class="student-brand">AulaAcessível · Química</span><h2>${escapeHtml(p.title)}</h2><p class="student-goal"><b>Hoje eu vou:</b> ${escapeHtml(p.goal)}</p></div><div class="student-name">Nome: __________________________</div></header><h3>Minha sequência</h3><ol class="student-steps">${steps.map((x,i)=>`<li><span class="step-icon">${studentIconSvg(x)}</span><span><small>Etapa ${i+1}</small>${escapeHtml(x)}</span><span class="step-check">□</span></li>`).join('')}</ol><div class="student-info-grid"><div class="student-info safety-mini"><h4>Antes de começar</h4>${listHtml(safety)}</div><div class="student-info sensory-mini"><h4>Posso encontrar</h4>${listHtml(sensory)}</div><div class="student-info communication-mini"><h4>Se eu precisar</h4>${listHtml(communication)}</div></div><div class="student-record"><h3>Meu registro final</h3><p><b>O que observei ou aprendi?</b></p><div class="writing-lines"></div><p><b>Uma ideia importante desta aula:</b></p><div class="writing-lines short"></div></div></section>`;
+  return `<section class="student-sheet"><header class="student-header"><div><span class="student-brand">AulaAcessível · Química</span><h2>${escapeHtml(p.title)}</h2><p class="student-goal"><b>Hoje eu vou:</b> ${escapeHtml(p.goal)}</p></div><div class="student-name">Nome: __________________________</div></header><h3>Minha sequência</h3><ol class="student-steps">${steps.map((x,i)=>`<li><span class="step-icon">${studentIconSvg(x)}</span><span><small>Etapa ${i+1}</small>${escapeHtml(x)}</span><span class="step-check">□</span></li>`).join('')}</ol><div class="student-info-grid"><div class="student-info safety-mini"><h4>Antes de começar</h4>${listHtml(safety)}</div><div class="student-info sensory-mini"><h4>Posso encontrar</h4>${listHtml(sensory)}</div><div class="student-info communication-mini"><h4>Se eu precisar</h4>${listHtml(communication)}</div></div><div class="student-record"><div class="student-record-print-header"><span class="student-brand">AulaAcessível · Química</span><h2>${escapeHtml(p.title)} — registro</h2><div class="student-name">Nome: __________________________</div></div><h3>Meu registro final</h3><p><b>O que observei ou aprendi?</b></p><div class="writing-lines"></div><p><b>Uma ideia importante desta aula:</b></p><div class="writing-lines short"></div></div></section>`;
 }
 
 function renderTeacher(p){

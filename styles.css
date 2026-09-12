@@ -209,6 +209,7 @@ textarea{resize:vertical;line-height:1.5}.full{grid-column:1/-1}
 .sensory-mini{border-top:4px solid var(--sensory)}
 .communication-mini{border-top:4px solid var(--communication)}
 .student-record{margin-top:16px;border-top:1px solid var(--line);padding-top:2px;break-inside:avoid}
+.student-record-print-header{display:none}
 .writing-lines{height:64px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,#cfd9dd 28px);margin-bottom:10px}
 .writing-lines.short{height:38px}
 
@@ -232,6 +233,13 @@ textarea{resize:vertical;line-height:1.5}.full{grid-column:1/-1}
   .student-info-grid{gap:6px}
   .student-info{padding:8px 10px}
   .student-sheet>h3,.student-record h3{margin:12px 0 7px}
+  .student-record{break-before:page;page-break-before:always;border-top:0;margin-top:0;padding-top:0}
+  .student-record-print-header{display:block;border-bottom:2px solid #d8e3e7;padding-bottom:9px;margin-bottom:16px}
+  .student-record-print-header .student-brand{display:block;margin-bottom:4px}
+  .student-record-print-header h2{font-size:16pt!important;margin:0 0 7px!important}
+  .student-record-print-header .student-name{font-size:9.5pt}
+  .student-record .writing-lines{height:82mm;background:repeating-linear-gradient(to bottom,transparent 0,transparent 8mm,#cfd9dd 8.2mm);margin-bottom:12mm}
+  .student-record .writing-lines.short{height:45mm}
   .auto-save,.timeline-meta{display:none!important}
   .coded-card-list li,.card-pill,.student-steps li,.student-info{box-shadow:none!important}
 }
