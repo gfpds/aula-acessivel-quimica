@@ -1,400 +1,121 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AulaAcessível — Smart Card</title>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f3d57" />
+  <title>AulaAcessível — Roteiro pronto</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
   <style>
-    :root {
-      --azul: #1f4e79;
-      --azul-claro: #eaf2f8;
-      --texto: #1f2937;
-      --cinza: #6b7280;
-      --borda: #d9e1e8;
-      --fundo: #f7f9fb;
-      --branco: #ffffff;
-      --verde: #2e8b57;
-      --laranja: #d96c1a;
-      --amarelo: #e3b100;
+    /* Complementos exclusivos do Smart Card. A identidade visual vem do mesmo styles.css do app principal. */
+    .smart-app{width:min(1180px,100%)}
+    .smart-hero{grid-template-columns:minmax(0,1fr) 320px}
+    .smart-hero h2{font-size:clamp(1.75rem,3.2vw,2.65rem)}
+    .smart-workspace{display:block}
+    .smart-stage{min-height:0}
+    .smart-actions{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+    .smart-status{display:inline-flex;align-items:center;gap:7px;background:#e9f5f0;color:#0f674e;border-radius:999px;padding:7px 10px;font-size:.76rem;font-weight:850}
+    .smart-status::before{content:'✓';font-weight:950}
+    .smart-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .smart-meta .badge{font-size:.7rem}
+    .smart-empty{padding:42px 20px;text-align:center}
+    .smart-empty h2{margin:0 0 8px}
+    .smart-empty p{color:var(--muted);max-width:650px;margin:0 auto 18px;line-height:1.5}
+    .teacher-note{border:1px solid #bcd0da;background:#f2f7f9;border-radius:16px;padding:14px 16px;line-height:1.5;margin:16px 0}
+    .smart-materials{margin-top:14px}
+    .smart-materials .output-box{border-top:4px solid var(--petrol)}
+    .smart-link-note{font-size:.82rem;color:var(--muted);margin-top:10px}
+    .smart-link-note code{background:#eef4f6;border-radius:7px;padding:2px 5px;color:#284451}
+    .tab:focus-visible{outline:none;box-shadow:var(--focus);border-radius:10px 10px 0 0}
+    .smart-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#14212b;color:#fff;padding:11px 16px;border-radius:999px;font-weight:750;opacity:0;pointer-events:none;transition:.18s ease;z-index:40;box-shadow:0 14px 34px rgba(20,33,43,.2)}
+    .smart-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    @media(max-width:760px){
+      .smart-hero{grid-template-columns:1fr}
+      .smart-actions{display:grid;grid-template-columns:1fr}
+      .smart-actions .primary,.smart-actions .ghost{width:100%}
+      .tabs{overflow-x:auto;flex-wrap:nowrap;padding-bottom:1px}
+      .tab{white-space:nowrap}
     }
-
-    * {
-      box-sizing: border-box;
+    @media print{
+      .smart-hero,.smart-actions,.smart-status,.smart-link-note{display:none!important}
+      .smart-stage{padding:0!important;border:0!important;box-shadow:none!important}
+      .smart-app{padding:0!important}
+      .tabs{display:none!important}
+      .output{border:0!important;padding:0!important}
     }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--fundo);
-      color: var(--texto);
-    }
-
-    .topo {
-      background: var(--azul);
-      color: white;
-      padding: 18px 20px;
-    }
-
-    .topo-conteudo {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .marca {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin: 0;
-    }
-
-    .submarca {
-      margin: 4px 0 0;
-      font-size: 0.9rem;
-      opacity: 0.9;
-    }
-
-    main {
-      max-width: 900px;
-      margin: 24px auto;
-      padding: 0 16px 40px;
-    }
-
-    .cartao {
-      background: var(--branco);
-      border: 1px solid var(--borda);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-    }
-
-    .etiqueta {
-      display: inline-block;
-      background: var(--azul-claro);
-      color: var(--azul);
-      font-size: 0.78rem;
-      font-weight: 700;
-      padding: 6px 10px;
-      border-radius: 999px;
-      margin-bottom: 12px;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 2rem;
-      line-height: 1.15;
-    }
-
-    .descricao {
-      margin: 0 0 24px;
-      color: var(--cinza);
-      line-height: 1.5;
-    }
-
-    .abas {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 22px;
-    }
-
-    .abas button {
-      border: 1px solid var(--azul);
-      background: white;
-      color: var(--azul);
-      padding: 10px 14px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .abas button.ativo {
-      background: var(--azul);
-      color: white;
-    }
-
-    .secao {
-      margin-top: 24px;
-    }
-
-    .secao h2 {
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-    }
-
-    ul, ol {
-      margin-top: 8px;
-      padding-left: 22px;
-      line-height: 1.6;
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .chip {
-      border: 1px solid var(--borda);
-      background: #fff;
-      padding: 7px 10px;
-      border-radius: 999px;
-      font-size: 0.9rem;
-    }
-
-    .acoes {
-      display: grid;
-      gap: 10px;
-      margin-top: 28px;
-    }
-
-    .botao {
-      display: block;
-      text-align: center;
-      text-decoration: none;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-weight: 700;
-    }
-
-    .primario {
-      background: var(--azul);
-      color: white;
-    }
-
-    .secundario {
-      border: 1px solid var(--azul);
-      color: var(--azul);
-      background: white;
-    }
-
-    .aviso {
-      background: #fff8e1;
-      border-left: 4px solid var(--amarelo);
-      padding: 12px 14px;
-      border-radius: 8px;
-      line-height: 1.5;
-    }
-
-    .erro {
-      text-align: center;
-      padding: 30px;
-    }
-
-    .oculto {
-      display: none;
-    }
-
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 1.55rem;
-      }
-
-      .cartao {
-        padding: 18px;
-      }
-    }
-
-    /* =========================================
-   IMPRESSÃO / SALVAR COMO PDF
-========================================= */
-
-.somente-impressao {
-  display: none;
-}
-
-@media print {
-
-  @page {
-  size: A4;
-  margin: 10mm 12mm;
-}
-
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  body {
-  background: white !important;
-  color: #111827 !important;
-  font-size: 9.5pt;
-  line-height: 1.3;
-}
-
-  .topo {
-    display: none !important;
-  }
-
-  main {
-    max-width: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .cartao {
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-  }
-
-  .abas,
-  .acoes,
-  button {
-    display: none !important;
-  }
-
-  .somente-impressao {
-    display: block !important;
-  }
-
-  .etiqueta {
-    display: none !important;
-  }
-
-  h1 {
-    font-size: 20pt;
-    margin-top: 0;
-    margin-bottom: 6px;
-    color: #1f4e79 !important;
-  }
-
-  h2 {
-    font-size: 13pt !important;
-    color: #1f2937 !important;
-    border-bottom: 1px solid #d9e1e8;
-    padding-bottom: 4px;
-  }
-
-  .descricao {
-    color: #374151 !important;
-    margin-bottom: 16px;
-  }
-
-  .secao {
-  margin-top: 10px;
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
-
-.secao.aviso-final {
-  margin-top: 10px;
-  break-inside: auto;
-  page-break-inside: auto;
-}
-
-  ul,
-  ol {
-    line-height: 1.45;
-  }
-
-  .chips {
-    gap: 5px;
-  }
-
-  .chip {
-    border: 1px solid #9ca3af;
-    padding: 4px 7px;
-    font-size: 9pt;
-    background: white !important;
-  }
-
-  .aviso {
-    border: 1px solid #d1d5db;
-    border-left: 4px solid #e3b100;
-    background: white !important;
-    color: #374151 !important;
-  }
-
-  .cabecalho-impressao {
-    margin-bottom: 22px;
-    padding-bottom: 12px;
-    border-bottom: 3px solid #1f4e79;
-  }
-
-  .cabecalho-impressao .marca-impressao {
-    font-size: 16pt;
-    font-weight: 700;
-    color: #1f4e79;
-  }
-
-  .cabecalho-impressao .subtitulo-impressao {
-    margin-top: 3px;
-    font-size: 10pt;
-    color: #6b7280;
-  }
-
-h1 {
-  font-size: 18pt;
-  margin-top: 0;
-  margin-bottom: 4px;
-}
-
-h2 {
-  font-size: 11.5pt !important;
-  margin-top: 8px;
-  margin-bottom: 4px;
-}
-
-p {
-  margin-top: 4px;
-  margin-bottom: 6px;
-}
-
-ul,
-ol {
-  margin-top: 4px;
-  margin-bottom: 6px;
-  line-height: 1.35;
-}
-
-.descricao {
-  margin-bottom: 10px;
-}
-
-.chips {
-  gap: 4px;
-}
-
-.chip {
-  padding: 3px 6px;
-  font-size: 7.8pt;
-}
-
-.aviso {
-  padding: 8px 10px;
-  font-size: 8.5pt;
-}
-
-.rodape-impressao {
-  margin-top: 10px;
-  padding-top: 6px;
-  font-size: 7.5pt;
-}
-  
-  .rodape-impressao {
-    margin-top: 24px;
-    padding-top: 8px;
-    border-top: 1px solid #d9e1e8;
-    font-size: 8.5pt;
-    color: #6b7280;
-  }
-
-}
   </style>
 </head>
-
 <body>
-  <header class="topo">
-    <div class="topo-conteudo">
-      <p class="marca">AulaAcessível</p>
-      <p class="submarca">Módulo Química — Smart Card</p>
+  <a class="skip-link" href="#conteudoPrincipal">Pular para o conteúdo</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">AA</div>
+      <div>
+        <h1>AulaAcessível</h1>
+        <p>Módulo Química · roteiro pronto</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <a class="ghost" href="index.html">Abrir planejador</a>
+      <button class="ghost" id="btnShareTop" type="button">Compartilhar</button>
     </div>
   </header>
 
-  <main>
-    <div id="conteudo" class="cartao"></div>
+  <main id="conteudoPrincipal" class="app-shell smart-app">
+    <section class="hero smart-hero" id="smartHero" aria-labelledby="heroTitle">
+      <div>
+        <p class="eyebrow">Smart Card · roteiro pronto</p>
+        <h2 id="heroTitle">Carregando aula…</h2>
+        <p class="hero-text" id="heroDescription">Aguarde enquanto o AulaAcessível organiza o roteiro.</p>
+        <div class="smart-meta" id="smartMeta"></div>
+      </div>
+      <div class="hero-card" aria-label="Como usar este roteiro">
+        <span><b>1</b> Confira o objetivo e a sequência</span>
+        <span><b>2</b> Separe os cards indicados</span>
+        <span><b>3</b> Adapte somente se precisar</span>
+      </div>
+    </section>
+
+    <div class="workspace smart-workspace">
+      <section class="stage-panel smart-stage" aria-live="polite">
+        <div id="erroArea" class="smart-empty" hidden></div>
+
+        <div id="smartContent">
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">Material pronto para usar</p>
+              <h3>Escolha o que precisa agora</h3>
+              <p>Veja a aula, confira o kit físico, imprima o roteiro do aluno ou abra as orientações do professor.</p>
+            </div>
+            <span class="smart-status">Roteiro carregado</span>
+          </div>
+
+          <div class="smart-actions">
+            <a class="primary" id="btnAdapt" href="index.html">Adaptar esta aula</a>
+            <button class="student-action" id="btnPrintStudent" type="button">Imprimir roteiro do aluno</button>
+            <button class="ghost" id="btnPrint" type="button">Imprimir tela atual</button>
+            <button class="ghost" id="btnShare" type="button">Compartilhar / copiar link</button>
+          </div>
+
+          <div class="tabs" role="tablist" aria-label="Saídas do roteiro pronto">
+            <button class="tab active" data-tab="panel" type="button" role="tab" aria-selected="true">Visão da aula</button>
+            <button class="tab" data-tab="cards" type="button" role="tab" aria-selected="false">Kit físico</button>
+            <button class="tab" data-tab="student" type="button" role="tab" aria-selected="false">Aluno</button>
+            <button class="tab" data-tab="teacher" type="button" role="tab" aria-selected="false">Professor</button>
+            <button class="tab" data-tab="checklist" type="button" role="tab" aria-selected="false">Checklist</button>
+          </div>
+
+          <article class="output" id="outputArea"></article>
+          <p class="smart-link-note">Este Smart Card usa a mesma URL impressa no QR/NFC. Atualizar este arquivo não exige recriar os códigos.</p>
+        </div>
+      </section>
+    </div>
   </main>
+
+  <div class="smart-toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
     const aulas = {
@@ -1060,252 +781,291 @@ Object.assign(aulas, {
   }
 
 });
-    
+
     const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
+    const id = params.get('id');
     const aula = aulas[id];
-    const PROFESSOR_PIN = "2026";
 
-const modeloDoApp = {
-  "modelos-atomicos": "qmc1-atomos-tabela",
-  "ligacoes-quimicas": "qmc2-ligacoes",
-  "estequiometria": "qmc3-estequiometria",
-  "acidos-bases": "qmc3-acidos-bases",
-  "equilibrio-ph": "qmc5-equilibrio-ph",
-  "funcoes-organicas": "qmc6-organica-funcoes",
-  "seguranca-laboratorio": "lqm1-seguranca-vidrarias",
-  "densidade-filtracao": "lqm1-densidade-filtracao",
-  "evidencias-reacoes": "qmc3-evidencias-reacoes",
-  "preparo-solucoes": "lqm1-solucoes-titulacao-ph",
-  "titulacao-acido-base": "lqm1-solucoes-titulacao-ph",
-  "eletroquimica": "qmc5-eletro-corrosao"
-};
-    
-const modeloSelecionado = modeloDoApp[id];
-    const conteudo = document.getElementById("conteudo");
+    const modeloDoApp = {
+      'modelos-atomicos': 'qmc1-atomos-tabela',
+      'ligacoes-quimicas': 'qmc2-ligacoes',
+      'estequiometria': 'qmc3-estequiometria',
+      'acidos-bases': 'qmc3-acidos-bases',
+      'equilibrio-ph': 'qmc5-equilibrio-ph',
+      'funcoes-organicas': 'qmc6-organica-funcoes',
+      'seguranca-laboratorio': 'lqm1-seguranca-vidrarias',
+      'densidade-filtracao': 'lqm1-densidade-filtracao',
+      'evidencias-reacoes': 'qmc3-evidencias-reacoes',
+      'preparo-solucoes': 'lqm1-solucoes-titulacao-ph',
+      'titulacao-acido-base': 'lqm1-solucoes-titulacao-ph',
+      'eletroquimica': 'qmc5-eletro-corrosao'
+    };
 
-    function lista(itens) {
-      return itens.map(item => `<li>${item}</li>`).join("");
+    const CARD_BANK = {
+      rotina: [
+        'Ouvir orientação','Ler roteiro','Ver materiais','Usar EPI','Observar','Manipular com orientação',
+        'Medir','Misturar','Aquecer','Aguardar','Comparar resultados','Registrar','Responder perguntas','Descartar',
+        'Limpar bancada','Guardar materiais','Concluir','Acompanhar explicação','Analisar exemplo','Ler enunciado',
+        'Resolver exercício','Usar tabela / gráfico','Usar calculadora','Revisar resposta'
+      ],
+      seguranca: [
+        'Usar óculos','Usar luvas','Usar jaleco','Não provar','Não cheirar diretamente','Não misturar sem autorização',
+        'Cuidado com vidro','Cuidado com calor','Descartar no local indicado','Manter bancada organizada','Chamar o professor',
+        'Lavar as mãos','Não correr','Prender o cabelo'
+      ],
+      sensorial: [
+        'Pode ter cheiro','Pode ter barulho','Pode ter luz forte','Pode ter calor','Pode ter frio','Atividade com líquidos',
+        'Pode haver espera','Pode haver trabalho em grupo','Pode haver movimento na bancada','Pausa combinada',
+        'Pode ter contato tátil','Pode ter mudança de cor'
+      ],
+      comunicacao: [
+        'Preciso de ajuda','Pode repetir?','Preciso de mais tempo','Preciso de pausa','Estou desconfortável','Não entendi',
+        'Pode conferir?','Quero observar de novo','Posso tentar de novo?','Prefiro registrar por escrito','Posso fazer em dupla?',
+        'Posso ver um exemplo?'
+      ]
+    };
+
+    const CARD_NUMBERING = {
+      rotina: CARD_BANK.rotina.map((_,i)=>i+1),
+      seguranca: CARD_BANK.seguranca.map((_,i)=>i+1),
+      sensorial: [1,2,3,4,5,6,9,10,11,12,13,14],
+      comunicacao: CARD_BANK.comunicacao.map((_,i)=>i+1)
+    };
+
+    const CARD_PREFIX = {rotina:'R', seguranca:'S', sensorial:'SN', comunicacao:'C'};
+    const COMUNICACAO_PADRAO = CARD_BANK.comunicacao.slice(0,6);
+    let activeTab = 'panel';
+
+    const normalizeText = (value='') => value
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+
+    const escapeHtml = (value='') => String(value)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+
+    const unique = arr => [...new Set((arr || []).filter(Boolean))];
+
+    function findExactCard(category, text){
+      const normalized = normalizeText(text);
+      return CARD_BANK[category].find(item => normalizeText(item) === normalized) || null;
     }
 
-    function chips(itens) {
-      return itens.map(item => `<span class="chip">${item}</span>`).join("");
+    function mapSafety(text){
+      const x = normalizeText(text);
+      const rules = [
+        [/oculos/, 'Usar óculos'], [/luvas/, 'Usar luvas'], [/jaleco/, 'Usar jaleco'],
+        [/nao provar|não provar|provar subst/, 'Não provar'], [/nao cheirar|não cheirar|cheirar diretamente/, 'Não cheirar diretamente'],
+        [/nao misturar|não misturar|misturar sem/, 'Não misturar sem autorização'], [/vidraria|vidro/, 'Cuidado com vidro'],
+        [/calor|aquec/, 'Cuidado com calor'], [/descart/, 'Descartar no local indicado'],
+        [/bancada organizada|manter a bancada/, 'Manter bancada organizada'], [/lavar as maos|lavar mãos/, 'Lavar as mãos'],
+        [/nao correr|não correr/, 'Não correr'], [/prender o cabelo|cabelo preso/, 'Prender o cabelo']
+      ];
+      return (rules.find(([re])=>re.test(x)) || [null,null])[1];
     }
 
-    function renderizarAluno() {
-      conteudo.innerHTML = `
-        <span class="etiqueta">MODO ESTUDANTE</span>
-        <h1>${aula.titulo}</h1>
-        <p class="descricao">${aula.descricao}</p>
+    function mapSensory(text){
+      const x = normalizeText(text);
+      const rules = [
+        [/cheiro/, 'Pode ter cheiro'], [/barulho|ruido/, 'Pode ter barulho'], [/luz|projetor|tela/, 'Pode ter luz forte'],
+        [/calor/, 'Pode ter calor'], [/frio/, 'Pode ter frio'], [/liquido/, 'Atividade com líquidos'],
+        [/espera/, 'Pode haver espera'], [/trabalho em grupo/, 'Pode haver trabalho em grupo'],
+        [/movimentacao|movimento na bancada/, 'Pode haver movimento na bancada'], [/contato tatil|contato com materiais|manipulacao de modelos/, 'Pode ter contato tátil'],
+        [/mudanca de cor|mudança de cor/, 'Pode ter mudança de cor']
+      ];
+      return (rules.find(([re])=>re.test(x)) || [null,null])[1];
+    }
 
-        <div class="abas">
-          <button class="ativo">Estudante</button>
-          <button onclick="solicitarProfessor()">🔒 Professor</button>
+    function cardCode(category, name){
+      const idx = CARD_BANK[category].findIndex(item => normalizeText(item) === normalizeText(name));
+      if(idx < 0) return '—';
+      const n = CARD_NUMBERING[category][idx];
+      return `${CARD_PREFIX[category]}${String(n).padStart(2,'0')}`;
+    }
+
+    function collectCards(){
+      const result = {rotina:[], seguranca:[], sensorial:[], comunicacao:COMUNICACAO_PADRAO.slice()};
+      (aula.cards || []).forEach(raw => {
+        for(const category of ['rotina','seguranca','sensorial','comunicacao']){
+          const exact = findExactCard(category, raw);
+          if(exact){ result[category].push(exact); return; }
+        }
+      });
+      (aula.seguranca || []).forEach(item => { const mapped = mapSafety(item); if(mapped) result.seguranca.push(mapped); });
+      (aula.sensorial || []).forEach(item => { const mapped = mapSensory(item); if(mapped) result.sensorial.push(mapped); });
+      return Object.fromEntries(Object.entries(result).map(([k,v])=>[k,unique(v)]));
+    }
+
+    function listHtml(items){
+      return `<ul>${(items || []).map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+    }
+
+    function checklistHtml(items){
+      return `<ul class="check-list">${items.map(item=>`<li>☐ ${escapeHtml(item)}</li>`).join('')}</ul>`;
+    }
+
+    function cardListHtml(category, items){
+      if(!(items || []).length) return '<p class="empty-note">Nenhum card desta categoria foi indicado.</p>';
+      return `<ul class="coded-card-list">${items.map(name=>`<li><span class="card-code">${cardCode(category,name)}</span><span>${escapeHtml(name)}</span></li>`).join('')}</ul>`;
+    }
+
+    function cardPillsHtml(category, items){
+      if(!(items || []).length) return '<span class="empty-note">nenhum</span>';
+      return `<div class="card-pills">${items.map(name=>`<span class="card-pill"><b>${cardCode(category,name)}</b>${escapeHtml(name)}</span>`).join('')}</div>`;
+    }
+
+    function timelineHtml(items){
+      const visible = (items || []).slice(0,5);
+      const remainder = Math.max(0,(items || []).length-visible.length);
+      const meta = remainder ? `<p class="timeline-meta">Mostrando 5 de ${items.length} etapas. As próximas entram conforme a aula avança.</p>` : '';
+      return `${meta}<div class="timeline">${visible.map((item,i)=>`<div class="timeline-step ${i===0?'current':''}">${i===0?'<span class="marker">AGORA</span>':''}<span class="label">Etapa ${i+1}</span>${escapeHtml(item)}</div>`).join('')}</div>`;
+    }
+
+    function studentIconSvg(text){
+      const x = normalizeText(text);
+      if(/ouvir|explicacao|orientacao/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10H4z"/><path d="M16 9c1.3 1.7 1.3 4.3 0 6M18.5 6.5c2.8 3 2.8 8 0 11"/></svg>';
+      if(/ler|roteiro|enunciado/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="M9 10h6M9 14h6M9 18h4"/></svg>';
+      if(/observar|ver|comparar|identificar|localizar/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.5"/></svg>';
+      if(/medir|pesar|massa|volume/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19L19 5l2 2L7 21z"/><path d="M9 17l-2-2M12 14l-2-2M15 11l-2-2"/></svg>';
+      if(/mistur|manipul|aquecer|material|epi|montar|transferir|adicionar|dissolver|homogeneizar/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5l-5 9a3 3 0 0 0 2.6 4.5h8.8A3 3 0 0 0 19 17l-5-9V3"/><path d="M7.5 16h9"/></svg>';
+      if(/calcul|resolver|exercicio|balancear|equacao/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2M8 18h2M14 18h2"/></svg>';
+      if(/registrar|anotar|responder|concluir/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/></svg>';
+      return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M8.5 12l2.3 2.3 4.8-5"/></svg>';
+    }
+
+    function renderPanel(){
+      const communication = COMUNICACAO_PADRAO.slice(0,5);
+      return `<div class="output-intro"><div><span class="output-kicker">Visão da aula</span><h2>${escapeHtml(aula.titulo)}</h2><p><b>Objetivo:</b> ${escapeHtml(aula.objetivo)}</p></div><span class="auto-save">Roteiro pronto</span></div>
+        <h3>Trilha visual</h3>${timelineHtml(aula.etapas)}
+        <div class="output-grid category-grid">
+          <div class="output-box safety-box"><h4>Segurança</h4>${listHtml((aula.seguranca||[]).slice(0,5))}</div>
+          <div class="output-box sensory-box"><h4>Avisos sensoriais</h4>${listHtml((aula.sensorial||[]).slice(0,5))}</div>
+          <div class="output-box communication-box"><h4>Comunicação disponível</h4>${listHtml(communication)}</div>
+          <div class="output-box"><h4>Materiais</h4>${listHtml((aula.materiais||[]).slice(0,7))}</div>
         </div>
-
-        <section class="secao">
-          <h2>O que vamos fazer</h2>
-          <p>${aula.objetivo}</p>
-        </section>
-
-        <section class="secao">
-          <h2>Materiais</h2>
-          <ul>${lista(aula.materiais)}</ul>
-        </section>
-
-        <section class="secao">
-          <h2>Segurança</h2>
-          <ul>${lista(aula.seguranca)}</ul>
-        </section>
-
-        <section class="secao">
-          <h2>Atenção sensorial</h2>
-          <ul>${lista(aula.sensorial)}</ul>
-        </section>
-
-        <section class="secao">
-          <h2>Sequência da atividade</h2>
-          <ol>${lista(aula.etapas)}</ol>
-        </section>
-
-        <div class="acoes">
-          <a class="botao secundario"
-             href="index.html">
-            Voltar ao AulaAcessível
-          </a>
-        </div>
-      `;
+        <p class="source-note"><b>Smart Card:</b> este roteiro funciona como ponto de partida e pode ser adaptado no planejador conforme a turma e a atividade.</p>`;
     }
 
-    function solicitarProfessor() {
-  if (sessionStorage.getItem("aulaAcessivelProfessor") === "ok") {
-    renderizarProfessor();
-    return;
-  }
-
-  const pin = prompt("Digite o PIN da área do professor:");
-
-  if (pin === null) return;
-
-  if (pin === PROFESSOR_PIN) {
-    sessionStorage.setItem("aulaAcessivelProfessor", "ok");
-    renderizarProfessor();
-  } else {
-    alert("PIN incorreto.");
-  }
-}
-
-function sairModoProfessor() {
-  sessionStorage.removeItem("aulaAcessivelProfessor");
-  renderizarAluno();
-}
-
-async function compartilharAula() {
-  const dados = {
-    title: `AulaAcessível — ${aula.titulo}`,
-    text: `Acesse a ficha da aula: ${aula.titulo}`,
-    url: window.location.href
-  };
-
-  if (navigator.share) {
-    try {
-      await navigator.share(dados);
-      return;
-    } catch (erro) {
-      if (erro.name === "AbortError") return;
-    }
-  }
-
-  try {
-    await navigator.clipboard.writeText(window.location.href);
-    alert("Link copiado para a área de transferência.");
-  } catch (erro) {
-    prompt("Copie o link da aula:", window.location.href);
-  }
-}
-
-function renderizarProfessor() {
-  conteudo.innerHTML = `
-
-    <div class="somente-impressao cabecalho-impressao">
-      <div class="marca-impressao">
-        AulaAcessível
-      </div>
-
-      <div class="subtitulo-impressao">
-        Módulo Química — Ficha de apoio ao professor
-      </div>
-    </div>
-
-    <span class="etiqueta">MODO PROFESSOR</span>
-
-    <h1>${aula.titulo}</h1>
-    <p class="descricao">${aula.descricao}</p>
-
-    <div class="abas">
-      <button onclick="renderizarAluno()">Estudante</button>
-      <button class="ativo">Professor</button>
-    </div>
-
-    <section class="secao">
-      <h2>Objetivo</h2>
-      <p>${aula.objetivo}</p>
-    </section>
-
-    <section class="secao">
-      <h2>Materiais</h2>
-      <ul>${lista(aula.materiais)}</ul>
-    </section>
-
-    <section class="secao">
-      <h2>Segurança</h2>
-      <ul>${lista(aula.seguranca)}</ul>
-    </section>
-
-    <section class="secao">
-      <h2>Possíveis aspectos sensoriais</h2>
-      <ul>${lista(aula.sensorial)}</ul>
-    </section>
-
-    <section class="secao">
-      <h2>Sequência sugerida</h2>
-      <ol>${lista(aula.etapas)}</ol>
-    </section>
-
-    <section class="secao">
-      <h2>Cards recomendados</h2>
-      <div class="chips">
-        ${chips(aula.cards)}
-      </div>
-    </section>
-
-    <section class="secao aviso-final">
-  <div class="aviso">
-    Esta ficha funciona como ponto de partida.
-    O professor deve revisar materiais, riscos,
-    necessidades da turma e características da atividade
-    antes da aplicação.
-  </div>
-</section>
-<div class="somente-impressao rodape-impressao">
-  AulaAcessível — Módulo Química<br>
-  Material de apoio ao planejamento e à organização acessível de aulas de Química.
-</div>
-
-    <div class="acoes">
-
-      <a class="botao primario"
-         href="index.html?modelo=${encodeURIComponent(modeloSelecionado)}">
-        ✨ Adaptar esta aula no AulaAcessível
-      </a>
-
-      <button class="botao secundario"
-              onclick="window.print()">
-        🖨️ Imprimir / Salvar como PDF
-      </button>
-
-      <button class="botao secundario"
-              onclick="compartilharAula()">
-        ↗ Compartilhar / Copiar link
-      </button>
-
-      <button class="botao secundario"
-              onclick="sairModoProfessor()">
-        🔒 Sair da área do professor
-      </button>
-
-    </div>
-  `;
-}
-
-    if (!id) {
-      conteudo.innerHTML = `
-        <div class="erro">
-          <h1>Smart Card AulaAcessível</h1>
-          <p>
-            Esta página deve ser aberta a partir de um Smart Card
-            ou de uma URL contendo o identificador da atividade.
-          </p>
-          <a class="botao primario" href="index.html">
-            Abrir AulaAcessível
-          </a>
+    function renderCards(){
+      const c = collectCards();
+      const initial = c.rotina.slice(0,5);
+      const queue = c.rotina.slice(5);
+      return `<div class="output-intro"><div><span class="output-kicker">Kit físico</span><h2>Cards para separar</h2><p>Use os códigos para localizar cada card rapidamente. O painel principal mostra no máximo 5 etapas de rotina por vez.</p></div></div>
+        <div class="physical-rule"><b>Como montar:</b> coloque os primeiros cards de rotina no painel. Guarde os demais em “PRÓXIMOS CARDS” e substitua os concluídos conforme a aula avança.</div>
+        <h3>Painel inicial</h3>${cardPillsHtml('rotina',initial)}
+        ${queue.length?`<h3>Próximos cards</h3>${cardPillsHtml('rotina',queue)}`:''}
+        <div class="output-grid kit-grid">
+          <div class="output-box safety-box"><h4>Segurança</h4>${cardListHtml('seguranca',c.seguranca)}</div>
+          <div class="output-box sensory-box"><h4>Avisos sensoriais</h4>${cardListHtml('sensorial',c.sensorial)}</div>
+          <div class="output-box communication-box"><h4>Comunicação — perto dos estudantes</h4>${cardListHtml('comunicacao',c.comunicacao)}<p class="box-note">Estes cards não precisam ocupar o painel principal.</p></div>
+          <div class="output-box marker-box"><h4>Marcadores</h4><ul class="coded-card-list"><li><span class="card-code neutral">M01</span><span>AGORA</span></li><li><span class="card-code neutral">M02</span><span>PAUSA</span></li><li><span class="card-code neutral">M03</span><span>FIM</span></li></ul></div>
         </div>
-      `;
-    } else if (!aula) {
-      conteudo.innerHTML = `
-        <div class="erro">
-          <h1>Conteúdo não encontrado</h1>
-          <p>
-            O Smart Card informado ainda não possui uma ficha cadastrada.
-          </p>
-          <a class="botao primario" href="index.html">
-            Abrir AulaAcessível
-          </a>
-        </div>
-      `;
-    } else {
-      renderizarAluno();
+        <div class="panel-title-note"><b>AULA DE HOJE:</b> escreva o tema na área apagável do painel: <span>${escapeHtml(aula.titulo)}</span></div>
+        <p class="source-note"><b>Legenda:</b> R = Rotina · S = Segurança · SN = Sensorial · C = Comunicação.</p>`;
     }
+
+    function renderStudent(){
+      const steps=(aula.etapas||[]).slice(0,9);
+      const communication=COMUNICACAO_PADRAO.slice(0,4);
+      const safety=(aula.seguranca||[]).slice(0,3);
+      const sensory=(aula.sensorial||[]).slice(0,3);
+      return `<section class="student-sheet"><header class="student-header"><div><span class="student-brand">AulaAcessível · Química</span><h2>${escapeHtml(aula.titulo)}</h2><p class="student-goal"><b>Hoje eu vou:</b> ${escapeHtml(aula.objetivo)}</p></div><div class="student-name">Nome: __________________________</div></header>
+        <h3>Minha sequência</h3><ol class="student-steps">${steps.map((x,i)=>`<li><span class="step-icon">${studentIconSvg(x)}</span><span><small>Etapa ${i+1}</small>${escapeHtml(x)}</span><span class="step-check">□</span></li>`).join('')}</ol>
+        <div class="student-info-grid"><div class="student-info safety-mini"><h4>Antes de começar</h4>${listHtml(safety)}</div><div class="student-info sensory-mini"><h4>Posso encontrar</h4>${listHtml(sensory)}</div><div class="student-info communication-mini"><h4>Se eu precisar</h4>${listHtml(communication)}</div></div>
+        <div class="student-record"><h3>Meu registro final</h3><p><b>O que observei ou aprendi?</b></p><div class="writing-lines"></div><p><b>Uma ideia importante desta aula:</b></p><div class="writing-lines short"></div></div></section>`;
+    }
+
+    function renderTeacher(){
+      return `<div class="output-intro"><div><span class="output-kicker">Professor</span><h2>${escapeHtml(aula.titulo)}</h2><p>${escapeHtml(aula.descricao)}</p></div></div>
+        <div class="teacher-note"><b>Uso rápido:</b> apresente a trilha, mostre até 5 etapas por vez e substitua os cards concluídos pelos próximos. Segurança e avisos sensoriais ficam visíveis; comunicação deve permanecer próxima dos estudantes.</div>
+        <div class="output-grid">
+          <div class="output-box"><h4>Antes da aula</h4>${listHtml(['Revise objetivo, materiais e riscos da atividade','Separe os cards indicados no Kit físico','Monte no painel somente as primeiras etapas','Escreva o tema na área “AULA DE HOJE”'])}</div>
+          <div class="output-box"><h4>Durante a aula</h4>${listHtml(['Apresente brevemente a sequência','Mova o marcador AGORA conforme a aula avança','Substitua cards concluídos se houver mais de 5 etapas','Mantenha alternativas de comunicação acessíveis'])}</div>
+          <div class="output-box"><h4>Materiais</h4>${listHtml(aula.materiais||[])}</div>
+          <div class="output-box"><h4>Objetivo</h4><p>${escapeHtml(aula.objetivo)}</p></div>
+        </div>
+        <h3>Sequência sugerida</h3>${listHtml(aula.etapas||[])}
+        <p class="source-note"><b>Importante:</b> revise sempre os riscos específicos, EPIs, descarte e necessidades reais da turma antes da aplicação.</p>`;
+    }
+
+    function renderChecklist(){
+      return `<h2>Checklist rápido</h2><div class="output-grid">
+        <div class="output-box"><h4>Antes da aula</h4>${checklistHtml(['Roteiro revisado','Cards separados','Materiais conferidos','Painel montado com até 5 etapas','Pausa e apoios combinados quando necessários'])}</div>
+        <div class="output-box"><h4>Durante a aula</h4>${checklistHtml(['Apresentei a trilha','Mostrei cuidados de segurança','Avisei estímulos sensoriais','Movi o marcador AGORA','Permiti comunicação alternativa','Substituí cards sem poluir o painel'])}</div>
+        <div class="output-box"><h4>Depois da aula</h4>${checklistHtml(['Limpeza e descarte orientados','Registro final concluído','Cards recolhidos e organizados','Apoios avaliados para a próxima aula'])}</div>
+        <div class="output-box"><h4>Lembrete</h4><p>O recurso organiza o acesso à atividade; ele não reduz a complexidade do conteúdo de Química.</p></div>
+      </div>`;
+    }
+
+    const renderers = {panel:renderPanel,cards:renderCards,student:renderStudent,teacher:renderTeacher,checklist:renderChecklist};
+
+    function setTab(tab){
+      activeTab = tab;
+      document.querySelectorAll('.tab').forEach(btn=>{
+        const active = btn.dataset.tab === tab;
+        btn.classList.toggle('active',active);
+        btn.setAttribute('aria-selected',String(active));
+      });
+      document.getElementById('outputArea').innerHTML = renderers[tab]();
+      document.getElementById('outputArea').focus?.();
+    }
+
+    function showToast(message){
+      const toast=document.getElementById('toast');
+      toast.textContent=message;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer=setTimeout(()=>toast.classList.remove('show'),2200);
+    }
+
+    async function shareCurrent(){
+      const data={title:`AulaAcessível — ${aula.titulo}`,text:`Roteiro pronto: ${aula.titulo}`,url:window.location.href};
+      if(navigator.share){
+        try{ await navigator.share(data); return; }catch(error){ if(error.name==='AbortError') return; }
+      }
+      try{ await navigator.clipboard.writeText(window.location.href); showToast('Link copiado.'); }
+      catch(error){ window.prompt('Copie o link da aula:',window.location.href); }
+    }
+
+    function printStudent(){
+      const previous=activeTab;
+      setTab('student');
+      requestAnimationFrame(()=>{
+        window.print();
+        setTimeout(()=>setTab(previous),150);
+      });
+    }
+
+    function init(){
+      if(!id || !aula){
+        document.getElementById('smartHero').hidden=true;
+        document.getElementById('smartContent').hidden=true;
+        const error=document.getElementById('erroArea');
+        error.hidden=false;
+        error.innerHTML = !id
+          ? `<h2>Smart Card AulaAcessível</h2><p>Esta página deve ser aberta por um Smart Card ou por uma URL com o identificador da atividade.</p><a class="primary" href="index.html">Abrir AulaAcessível</a>`
+          : `<h2>Conteúdo não encontrado</h2><p>O identificador <b>${escapeHtml(id)}</b> ainda não possui um roteiro cadastrado.</p><a class="primary" href="index.html">Abrir AulaAcessível</a>`;
+        return;
+      }
+
+      document.title=`AulaAcessível — ${aula.titulo}`;
+      document.getElementById('heroTitle').textContent=aula.titulo;
+      document.getElementById('heroDescription').textContent=aula.descricao;
+      document.getElementById('smartMeta').innerHTML=`<span class="badge qmc">Química</span><span class="badge ifsc">Roteiro pronto</span><span class="badge">${(aula.etapas||[]).length} etapas</span>`;
+
+      const model=modeloDoApp[id];
+      const btnAdapt=document.getElementById('btnAdapt');
+      btnAdapt.href=model?`index.html?modelo=${encodeURIComponent(model)}`:'index.html';
+
+      document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>setTab(btn.dataset.tab)));
+      document.getElementById('btnPrint').addEventListener('click',()=>window.print());
+      document.getElementById('btnPrintStudent').addEventListener('click',printStudent);
+      document.getElementById('btnShare').addEventListener('click',shareCurrent);
+      document.getElementById('btnShareTop').addEventListener('click',shareCurrent);
+      setTab('panel');
+    }
+
+    init();
   </script>
 </body>
 </html>
