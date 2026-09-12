@@ -1,4 +1,4 @@
-const CACHE = "aula-acessivel-v6";
+const CACHE = "aula-acessivel-v7";
 
 const FILES = [
   "./",

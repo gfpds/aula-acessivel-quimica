@@ -30,21 +30,21 @@
       <div>
         <p class="eyebrow">Protótipo acadêmico · IFSC São José</p>
         <h2 id="hero-title">Transforme uma aula de Química em uma versão mais acessível.</h2>
-        <p class="hero-text">Escolha um modelo pronto, revise as barreiras e gere trilha visual, roteiro do aluno, painel projetável, lista de placas/cards e orientações para o professor.</p>
+        <p class="hero-text">Planeje em poucos minutos. O sistema sugere apoios, indica os cards físicos e gera materiais claros para professor e estudante — sem simplificar o conteúdo de Química.</p>
       </div>
       <div class="hero-card" aria-label="Fluxo do app">
-        <span>1. Escolher aula</span>
-        <span>2. Revisar barreiras</span>
-        <span>3. Gerar apoios</span>
-        <span>4. Usar na aula</span>
+        <span><b>1</b> Escolha a aula</span>
+        <span><b>2</b> Revise necessidades</span>
+        <span><b>3</b> Ajuste o plano</span>
+        <span><b>4</b> Use na aula</span>
       </div>
     </section>
 
     <nav class="steps" aria-label="Etapas do planejamento">
       <button class="step active" data-step="1" type="button"><b>1</b><span>Aula</span></button>
-      <button class="step" data-step="2" type="button"><b>2</b><span>Barreiras</span></button>
-      <button class="step" data-step="3" type="button"><b>3</b><span>Apoios</span></button>
-      <button class="step" data-step="4" type="button"><b>4</b><span>Uso</span></button>
+      <button class="step" data-step="2" type="button"><b>2</b><span>Necessidades</span></button>
+      <button class="step" data-step="3" type="button"><b>3</b><span>Ajustes</span></button>
+      <button class="step" data-step="4" type="button"><b>4</b><span>Pronto</span></button>
     </nav>
 
     <div class="workspace">
@@ -137,8 +137,8 @@
           <div class="section-title">
             <div>
               <p class="eyebrow">Etapa 2</p>
-              <h3>Revisar barreiras da aula</h3>
-              <p>O app já sugere. O professor só marca ou desmarca o que faz sentido.</p>
+              <h3>O que pode dificultar esta aula?</h3>
+              <p>As sugestões já vêm marcadas. Revise somente o que fizer sentido para sua turma.</p>
             </div>
             <button class="ghost" id="btnAutoBarriers" type="button">Recarregar sugestões</button>
           </div>
@@ -160,37 +160,51 @@
           <div class="section-title">
             <div>
               <p class="eyebrow">Etapa 3</p>
-              <h3>Gerar e ajustar apoios</h3>
-              <p>Edite apenas se quiser. Cada linha vira um item do roteiro ou do painel.</p>
+              <h3>Revise o plano gerado</h3>
+              <p>O essencial já está pronto. Abra apenas as partes que quiser modificar.</p>
             </div>
             <button class="primary" id="btnGenerate" type="button">Gerar apoios</button>
           </div>
 
-          <div class="editor-grid">
+          <div class="editor-core">
             <label>Título da aula
               <input id="planTitle" type="text" />
             </label>
-            <label>Objetivo acessível
+            <label>Objetivo de aprendizagem
               <input id="planGoal" type="text" />
             </label>
-            <label>Trilha visual da aula <small>uma etapa por linha</small>
-              <textarea id="editTrail" rows="8"></textarea>
-            </label>
-            <label>Segurança <small>uma orientação por linha</small>
-              <textarea id="editSafety" rows="8"></textarea>
-            </label>
-            <label>Avisos sensoriais <small>uma orientação por linha</small>
-              <textarea id="editSensory" rows="8"></textarea>
-            </label>
-            <label>Comunicação e participação <small>uma opção por linha</small>
-              <textarea id="editCommunication" rows="8"></textarea>
-            </label>
-            <label>Roteiro do aluno <small>uma ação por linha</small>
-              <textarea id="editStudent" rows="8"></textarea>
-            </label>
-            <label>Avaliação alternativa <small>uma possibilidade por linha</small>
-              <textarea id="editAssessment" rows="8"></textarea>
-            </label>
+          </div>
+
+          <div class="edit-section featured-edit">
+            <div class="edit-head">
+              <div>
+                <span class="edit-kicker">Principal</span>
+                <h4>Trilha visual da aula</h4>
+                <p>Uma etapa por linha. O painel físico mostra até 5 cards por vez; os próximos entram conforme a aula avança.</p>
+              </div>
+            </div>
+            <textarea id="editTrail" rows="7"></textarea>
+          </div>
+
+          <div class="edit-accordions">
+            <details open>
+              <summary><span>Segurança e avisos sensoriais</span><small>ajuste se necessário</small></summary>
+              <div class="editor-grid compact-editors">
+                <label>Segurança <small>uma orientação por linha</small><textarea id="editSafety" rows="6"></textarea></label>
+                <label>Avisos sensoriais <small>uma orientação por linha</small><textarea id="editSensory" rows="6"></textarea></label>
+              </div>
+            </details>
+            <details>
+              <summary><span>Comunicação e participação</span><small>opções acessíveis</small></summary>
+              <label class="detail-field">Comunicação <small>uma opção por linha</small><textarea id="editCommunication" rows="6"></textarea></label>
+            </details>
+            <details>
+              <summary><span>Material do aluno e avaliação</span><small>para impressão</small></summary>
+              <div class="editor-grid compact-editors">
+                <label>Roteiro do aluno <small>uma ação por linha</small><textarea id="editStudent" rows="7"></textarea></label>
+                <label>Avaliação alternativa <small>uma possibilidade por linha</small><textarea id="editAssessment" rows="7"></textarea></label>
+              </div>
+            </details>
           </div>
         </div>
 
@@ -198,27 +212,33 @@
           <div class="section-title">
             <div>
               <p class="eyebrow">Etapa 4</p>
-              <h3>Usar o plano na aula</h3>
-              <p>Escolha o formato: projetar, imprimir, copiar, exportar ou separar placas/cards.</p>
+              <h3>Plano pronto para usar</h3>
+              <p>Projete, imprima o material do aluno ou confira exatamente quais cards físicos separar.</p>
             </div>
           </div>
 
-          <div class="use-actions">
-            <button class="primary" id="btnProject" type="button">Modo projetável</button>
-            <button class="ghost" id="btnPrint" type="button">Imprimir</button>
-            <button class="ghost" id="btnCopy" type="button">Copiar texto</button>
-            <button class="ghost" id="btnExportTxt" type="button">Exportar .txt</button>
-            <button class="ghost" id="btnSaveJson" type="button">Salvar .json</button>
-            <label class="file-label">Carregar .json
-              <input id="loadJson" type="file" accept="application/json" />
-            </label>
+          <div class="use-actions main-use-actions">
+            <button class="primary" id="btnProject" type="button">Projetar para a turma</button>
+            <button class="student-action" id="btnPrintStudent" type="button">Imprimir roteiro do aluno</button>
+            <button class="ghost" id="btnPrint" type="button">Imprimir tela atual</button>
           </div>
+          <details class="secondary-actions">
+            <summary>Salvar, copiar ou carregar plano</summary>
+            <div class="use-actions">
+              <button class="ghost" id="btnCopy" type="button">Copiar texto</button>
+              <button class="ghost" id="btnExportTxt" type="button">Exportar .txt</button>
+              <button class="ghost" id="btnSaveJson" type="button">Salvar .json</button>
+              <label class="file-label">Carregar .json
+                <input id="loadJson" type="file" accept="application/json" />
+              </label>
+            </div>
+          </details>
 
           <div class="tabs" role="tablist" aria-label="Saídas do plano">
-            <button class="tab active" data-tab="panel" type="button">Painel projetável</button>
-            <button class="tab" data-tab="student" type="button">Roteiro do aluno</button>
+            <button class="tab active" data-tab="panel" type="button">Visão da aula</button>
+            <button class="tab" data-tab="cards" type="button">Kit físico</button>
+            <button class="tab" data-tab="student" type="button">Aluno</button>
             <button class="tab" data-tab="teacher" type="button">Professor</button>
-            <button class="tab" data-tab="cards" type="button">Placas/cards</button>
             <button class="tab" data-tab="checklist" type="button">Checklist</button>
           </div>
 
@@ -238,7 +258,7 @@
         </div>
         <dl id="summaryList"></dl>
         <div class="mini-note">
-          <b>Ideia central:</b> o app prepara o plano; o professor separa as placas; a turma acompanha por uma trilha visual.
+          <b>Fluxo simples:</b> o site prepara o plano → o professor separa os cards → o painel acompanha a aula.
         </div>
       </aside>
     </div>
@@ -250,12 +270,12 @@
       <button class="icon-btn" id="btnCloseHelp" type="button" aria-label="Fechar">×</button>
     </div>
     <ol class="help-list">
-      <li><b>Escolha um modelo pronto.</b> Comece por uma aula da Biblioteca IFSC.</li>
-      <li><b>Revise as barreiras.</b> O app já sugere; marque/desmarque.</li>
-      <li><b>Gere apoios.</b> O app monta trilha, segurança, sensorial, comunicação e avaliação.</li>
-      <li><b>Use na aula.</b> Projete o painel ou imprima. Separe apenas as placas/cards indicadas.</li>
+      <li><b>Escolha a aula.</b> Um modelo pronto é o caminho mais rápido.</li>
+      <li><b>Revise as necessidades.</b> As sugestões já aparecem selecionadas; altere somente o necessário.</li>
+      <li><b>Confira o plano.</b> A trilha, segurança, avisos sensoriais, comunicação e avaliação já vêm organizados.</li>
+      <li><b>Use na aula.</b> Separe os cards indicados. Mostre até 5 etapas por vez e substitua as concluídas conforme a aula avança.</li>
     </ol>
-    <p class="soft-box">Não é para o professor preencher tudo. É para escolher uma aula e revisar rapidamente.</p>
+    <p class="soft-box"><b>Regra do projeto:</b> o professor não precisa preencher tudo. O sistema deve economizar tempo, reduzir decisões e mostrar somente o necessário.</p>
   </dialog>
 
   <dialog id="projectDialog" class="project-dialog">

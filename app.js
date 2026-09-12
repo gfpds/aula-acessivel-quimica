@@ -431,6 +431,22 @@ const CARD_BANK = {
   ]
 };
 
+const CARD_NUMBERING = {
+  rotina: CARD_BANK.rotina.map((_,i)=>i+1),
+  seguranca: CARD_BANK.seguranca.map((_,i)=>i+1),
+  sensorial: [1,2,3,4,5,6,9,10,11,12,13,14],
+  comunicacao: CARD_BANK.comunicacao.map((_,i)=>i+1)
+};
+
+const CARD_PREFIX = {rotina:'R', seguranca:'S', sensorial:'SN', comunicacao:'C'};
+
+function cardCode(category, name){
+  const idx = (CARD_BANK[category]||[]).indexOf(name);
+  if(idx < 0) return '—';
+  const n = CARD_NUMBERING[category][idx];
+  return `${CARD_PREFIX[category]}${String(n).padStart(2,'0')}`;
+}
+
 let state = {
   step:1,
   mode:'model',
@@ -451,10 +467,10 @@ const lines = text => (text||'').split('\n').map(s=>s.trim()).filter(Boolean);
 const toLines = arr => unique(arr).join('\n');
 const currentModel = () => MODELS.find(m=>m.id===state.selectedModelId) || MODELS[0];
 
-function saveLocal(){ localStorage.setItem('aulaAcessivelV4', JSON.stringify(state)); }
+function saveLocal(){ try{ localStorage.setItem('aulaAcessivelV5', JSON.stringify(state)); }catch(e){} }
 function loadLocal(){
   try{
-    const saved = JSON.parse(localStorage.getItem('aulaAcessivelV4')||'null');
+    const saved = JSON.parse(localStorage.getItem('aulaAcessivelV5')||localStorage.getItem('aulaAcessivelV4')||'null');
     if(saved && saved.step){ state = {...state, ...saved}; }
   }catch(e){}
 }
@@ -495,6 +511,13 @@ function init(){
   applyStateToUI();
   goStep(state.step || 1, false);
   updateSummary();
+  registerOfflineSupport();
+}
+
+function registerOfflineSupport(){
+  if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+  }
 }
 
 function populateComponentFilter(){
@@ -565,7 +588,7 @@ function bindEvents(){
       const g=chip.dataset.barrierGroup, val=chip.dataset.value;
       const arr=state.barriers[g] || [];
       state.barriers[g] = arr.includes(val) ? arr.filter(x=>x!==val) : [...arr,val];
-      chip.classList.toggle('selected'); saveLocal(); updateSummary();
+      renderBarriers(); saveLocal(); updateSummary();
     }
   });
   $('#guidedTitle').addEventListener('input',e=>{state.guided.title=e.target.value; updateSummary(); saveLocal();});
@@ -578,6 +601,7 @@ function bindEvents(){
   $$('.tab').forEach(t=>t.addEventListener('click',()=>{state.outputTab=t.dataset.tab; $$('.tab').forEach(x=>x.classList.toggle('active',x===t)); renderOutput(); saveLocal();}));
   $('#btnProject').addEventListener('click',openProjector);
   $('#btnPrint').addEventListener('click',()=>window.print());
+  $('#btnPrintStudent').addEventListener('click',printStudentSheet);
   $('#btnCopy').addEventListener('click',copyCurrentOutput);
   $('#btnExportTxt').addEventListener('click',exportTxt);
   $('#btnSaveJson').addEventListener('click',saveJson);
@@ -611,8 +635,10 @@ function goStep(n, persist=true){
   $$('.stage').forEach((el,i)=>el.classList.toggle('visible',i===n-1));
   $$('.step').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.step)===n));
   $('#btnPrev').style.visibility = n===1?'hidden':'visible';
-  $('#btnNext').textContent = n===4?'Revisar apoios':'Avançar';
+  $('#btnNext').style.display = n===4?'none':'inline-flex';
+  $('#btnNext').textContent = n===3?'Ver plano pronto':'Avançar';
   if(n===4) { readEditorsToPlan(); renderOutput(); }
+  window.scrollTo({top:0, behavior:'smooth'});
   if(persist) saveLocal();
 }
 
@@ -679,15 +705,16 @@ function suggestBarriers(){
 
 function renderBarriers(){
   const grid=$('#barrierGrid'); if(!grid) return; grid.innerHTML='';
-  const labels={cognitivas:'Cognitivas / organização', sensoriais:'Sensoriais', comunicacionais:'Comunicação / participação', seguranca:'Segurança'};
+  const labels={cognitivas:'Organização e compreensão', sensoriais:'Sensorial', comunicacionais:'Comunicação e participação', seguranca:'Segurança'};
   Object.keys(BARRIER_BANK).forEach(group=>{
-    const all=unique([...(state.barriers[group]||[]), ...BARRIER_BANK[group]]);
+    const selected = state.barriers[group]||[];
+    const all=unique([...selected, ...BARRIER_BANK[group]]);
     const div=document.createElement('div'); div.className='barrier-group '+group;
-    div.innerHTML=`<h4>${labels[group]}</h4><div class="chip-box"></div>`;
+    div.innerHTML=`<h4>${labels[group]} <span class="barrier-count">${selected.length} marcadas</span></h4><p class="barrier-hint">Clique somente no que deseja incluir ou retirar.</p><div class="chip-box"></div>`;
     const box=div.querySelector('.chip-box');
     all.forEach(item=>{
       const btn=document.createElement('button'); btn.type='button'; btn.className='chip small'; btn.dataset.barrierGroup=group; btn.dataset.value=item; btn.textContent=item;
-      if((state.barriers[group]||[]).includes(item)) btn.classList.add('selected');
+      if(selected.includes(item)) btn.classList.add('selected');
       box.appendChild(btn);
     });
     grid.appendChild(div);
@@ -758,15 +785,16 @@ function makeGoal(base){
 function makeTeacherGuide(level){
   const extra = level==='intenso' ? 'Reduzir opções simultâneas, avisar cada transição e manter pausa combinada disponível.' : level==='moderado' ? 'Reforçar a etapa atual e conferir compreensão antes das mudanças de atividade.' : 'Usar os apoios com a turma toda, sem destacar um aluno específico.';
   return {
-    before:['Gerar o plano no AulaAcessível','Separar apenas as placas/cards recomendadas','Montar o painel da aula antes da turma começar','Deixar cards de comunicação em local acessível'],
-    during:['Apresentar a trilha visual da aula','Mover o marcador “AGORA” conforme a aula avança','Retomar segurança antes da manipulação','Permitir resposta por fala, marcação, desenho ou apontamento', extra],
-    after:['Usar a etapa de limpar/guardar/concluir','Recolher placas/cards','Registrar quais apoios funcionaram ou faltaram','Salvar o plano ajustado para próxima aula']
+    before:['Gerar o plano no AulaAcessível','Separar somente os cards indicados pelo código','Montar no painel até 5 cards de rotina e deixar os próximos separados','Deixar os cards de comunicação próximos aos estudantes, não no painel principal'],
+    during:['Apresentar a trilha visual sem expor todas as etapas de uma vez','Mover o marcador “AGORA” conforme a aula avança','Substituir cards concluídos pelos próximos quando necessário','Retomar segurança antes da manipulação','Permitir resposta por fala, marcação, desenho ou apontamento', extra],
+    after:['Usar o marcador “FIM” ao encerrar','Recolher e guardar cards em ordem numérica','Registrar quais apoios funcionaram ou faltaram','Salvar o plano ajustado para próxima aula']
   };
 }
 function recommendCards(plan){
-  const rotina = CARD_BANK.rotina
-    .filter(c => plan.trail.some(t => similar(t,c)))
-    .slice(0,14);
+  const rotina = unique([
+    ...plan.trail.flatMap(routineCardsForText),
+    ...CARD_BANK.rotina.filter(c => plan.trail.some(t => similar(t,c)))
+  ]).slice(0,14);
 
   const seguranca = CARD_BANK.seguranca
     .filter(c => plan.safety.some(t => similar(t,c)))
@@ -780,18 +808,43 @@ function recommendCards(plan){
     'Preciso de ajuda',
     'Pode repetir?',
     'Preciso de mais tempo',
-    ...CARD_BANK.comunicacao.filter(c =>
-      plan.communication.some(t => similar(t,c))
-    )
+    ...CARD_BANK.comunicacao.filter(c => plan.communication.some(t => similar(t,c)))
   ]).slice(0,9);
 
-  return {
-    rotina: unique(rotina),
-    seguranca: unique(seguranca),
-    sensorial: unique(sensorial),
-    comunicacao: unique(comunicacao)
-  };
+  return {rotina, seguranca, sensorial, comunicacao};
 }
+
+function routineCardsForText(text){
+  const x = normalizeText(text);
+  const rules = [
+    [/orientacao|orientar|objetivo|explicacao|apresentar/, 'Ouvir orientação'],
+    [/ler roteiro|roteiro/, 'Ler roteiro'],
+    [/materiais|amostras|vidrarias|estado inicial/, 'Ver materiais'],
+    [/epi|oculos|luvas|jaleco/, 'Usar EPI'],
+    [/observar(?! materiais)|evidencia|aparencia|resultado/, 'Observar'],
+    [/manipular|transferir|adicionar/, 'Manipular com orientação'],
+    [/medir|pesar|massa|volume/, 'Medir'],
+    [/misturar|mistura|dissolver|homogeneizar/, 'Misturar'],
+    [/aquecer|aquecimento/, 'Aquecer'],
+    [/aguardar|esperar|tempo de espera/, 'Aguardar'],
+    [/comparar|antes e depois/, 'Comparar resultados'],
+    [/registrar|anotar|preencher|desenhar/, 'Registrar'],
+    [/responder|perguntas/, 'Responder perguntas'],
+    [/descartar|descarte/, 'Descartar'],
+    [/limpar|limpeza/, 'Limpar bancada'],
+    [/guardar/, 'Guardar materiais'],
+    [/concluir|conclusao/, 'Concluir'],
+    [/acompanhar explicacao/, 'Acompanhar explicação'],
+    [/analisar exemplo|exemplo/, 'Analisar exemplo'],
+    [/ler problema|ler enunciado|enunciado/, 'Ler enunciado'],
+    [/resolver|calculo|calcular/, 'Resolver exercício'],
+    [/tabela|grafico/, 'Usar tabela / gráfico'],
+    [/calculadora/, 'Usar calculadora'],
+    [/revisar|conferir resultado|conferir resposta/, 'Revisar resposta']
+  ];
+  return unique(rules.filter(([rx])=>rx.test(x)).map(([,card])=>card));
+}
+
 function normalizeText(text){
   return String(text || '')
     .toLowerCase()
@@ -814,9 +867,16 @@ function similar(a,b){
   // Algumas formas equivalentes usadas nos roteiros
   const aliases = [
     ['ouvir explicacao', 'acompanhar explicacao'],
+    ['apresentar objetivo', 'ouvir orientacao'],
+    ['observar materiais', 'ver materiais'],
     ['ler problema', 'ler enunciado'],
     ['resolver com apoio', 'resolver exercicio'],
-    ['colocar epi', 'usar epi']
+    ['colocar epi', 'usar epi'],
+    ['registrar dados', 'registrar'],
+    ['registrar observacoes', 'registrar'],
+    ['realizar mistura', 'misturar'],
+    ['descartar residuos', 'descartar'],
+    ['limpeza', 'limpar bancada']
   ];
 
   for (const [p1, p2] of aliases) {
@@ -894,17 +954,49 @@ function renderOutput(){
   area.innerHTML = map[tab](p);
 }
 
-function timelineHtml(trail){
-  return `<div class="timeline">${trail.map((s,i)=>`<div class="timeline-step ${i<state.nowIndex?'done':''} ${i===state.nowIndex?'current':''}">${i===state.nowIndex?'<span class="marker">AGORA</span>':''}<span class="label">Etapa ${i+1}</span>${escapeHtml(s)}</div>`).join('')}</div>`;
+function timelineHtml(trail, focused=false){
+  const safeTrail = trail || [];
+  let start = 0;
+  let visible = safeTrail;
+  if(focused && safeTrail.length > 5){
+    start = Math.min(state.nowIndex, Math.max(0, safeTrail.length-5));
+    visible = safeTrail.slice(start, start+5);
+  }
+  const meta = focused && safeTrail.length>5 ? `<p class="timeline-meta">Mostrando ${start+1}–${start+visible.length} de ${safeTrail.length} etapas. As demais entram conforme a aula avança.</p>` : '';
+  return `${meta}<div class="timeline">${visible.map((s,j)=>{const i=start+j;return `<div class="timeline-step ${i<state.nowIndex?'done':''} ${i===state.nowIndex?'current':''}">${i===state.nowIndex?'<span class="marker">AGORA</span>':''}<span class="label">Etapa ${i+1}</span>${escapeHtml(s)}</div>`}).join('')}</div>`;
 }
 function listHtml(items){ return `<ul>${(items||[]).map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>`; }
 function checklistHtml(items){ return `<ul class="check-list">${(items||[]).map(x=>`<li>☐ ${escapeHtml(x)}</li>`).join('')}</ul>`; }
+function cardListHtml(category, items){
+  if(!(items||[]).length) return '<p class="empty-note">Nenhum card desta categoria foi indicado.</p>';
+  return `<ul class="coded-card-list">${items.map(name=>`<li><span class="card-code">${cardCode(category,name)}</span><span>${escapeHtml(name)}</span></li>`).join('')}</ul>`;
+}
+function cardPillsHtml(category, items){
+  if(!(items||[]).length) return '<span class="empty-note">nenhum</span>';
+  return `<div class="card-pills">${items.map(name=>`<span class="card-pill"><b>${cardCode(category,name)}</b>${escapeHtml(name)}</span>`).join('')}</div>`;
+}
 function renderPanel(p){
-  return `<h2>${escapeHtml(p.title)}</h2><p><b>Objetivo:</b> ${escapeHtml(p.goal)}</p><h3>Trilha visual da aula</h3>${timelineHtml(p.trail)}<div class="output-grid"><div class="output-box"><h4>Segurança</h4>${listHtml(p.safety)}</div><div class="output-box"><h4>Avisos sensoriais</h4>${listHtml(p.sensory)}</div><div class="output-box"><h4>Comunicação disponível</h4>${listHtml(p.communication)}</div><div class="output-box"><h4>Conteúdos mobilizados</h4>${listHtml(p.contents)}</div></div><p class="source-note"><b>Base do modelo:</b> ${escapeHtml(p.source||'Plano criado pelo usuário.')}</p>`;
+  return `<div class="output-intro"><div><span class="output-kicker">Visão da aula</span><h2>${escapeHtml(p.title)}</h2><p><b>Objetivo:</b> ${escapeHtml(p.goal)}</p></div><span class="auto-save">Plano salvo automaticamente</span></div><h3>Trilha visual</h3>${timelineHtml(p.trail,true)}<div class="output-grid category-grid"><div class="output-box safety-box"><h4>Segurança</h4>${listHtml(p.safety.slice(0,5))}</div><div class="output-box sensory-box"><h4>Avisos sensoriais</h4>${listHtml(p.sensory.slice(0,5))}</div><div class="output-box communication-box"><h4>Comunicação disponível</h4>${listHtml(p.communication.slice(0,5))}</div><div class="output-box"><h4>Conteúdos</h4>${listHtml(p.contents.slice(0,6))}</div></div><p class="source-note"><b>Base do modelo:</b> ${escapeHtml(p.source||'Plano criado pelo usuário.')}</p>`;
+}
+function studentIconSvg(text){
+  const x=normalizeText(text);
+  if(/ouvir|explicacao|orientacao/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10H4z"/><path d="M16 9c1.3 1.7 1.3 4.3 0 6M18.5 6.5c2.8 3 2.8 8 0 11"/></svg>';
+  if(/ler|roteiro|enunciado/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="M9 10h6M9 14h6M9 18h4"/></svg>';
+  if(/observar|ver|comparar/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.5"/></svg>';
+  if(/medir|pesar|massa|volume/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19L19 5l2 2L7 21z"/><path d="M9 17l-2-2M12 14l-2-2M15 11l-2-2"/></svg>';
+  if(/mistur|manipul|aquecer|material|epi/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5l-5 9a3 3 0 0 0 2.6 4.5h8.8A3 3 0 0 0 19 17l-5-9V3"/><path d="M7.5 16h9"/></svg>';
+  if(/calcul|resolver|exercicio/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2M8 18h2M14 18h2"/></svg>';
+  if(/registrar|anotar|responder/.test(x)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 10-10-3-3L5 16z"/><path d="M14 7l3 3"/></svg>';
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M8.5 12l2.3 2.3 4.8-5"/></svg>';
 }
 function renderStudent(p){
-  return `<h2>Roteiro acessível do aluno</h2><p><b>Aula:</b> ${escapeHtml(p.title)}</p><p><b>Hoje eu vou:</b></p>${checklistHtml(p.student)}<h3>Durante a atividade, posso pedir:</h3>${listHtml(p.communication)}<h3>Registro</h3><div class="output-grid"><div class="output-box"><h4>O que observei?</h4><p>☐ mudança de cor &nbsp; ☐ bolhas &nbsp; ☐ sólido &nbsp; ☐ duas fases &nbsp; ☐ temperatura &nbsp; ☐ outro</p></div><div class="output-box"><h4>Minha conclusão</h4><p>Eu observei: ____________________________</p><p>Isso pode estar relacionado a: ____________________________</p></div></div>`;
+  const steps=(p.student||[]).slice(0,9);
+  const communication=(p.communication||[]).slice(0,4);
+  const safety=(p.safety||[]).slice(0,3);
+  const sensory=(p.sensory||[]).slice(0,3);
+  return `<section class="student-sheet"><header class="student-header"><div><span class="student-brand">AulaAcessível · Química</span><h2>${escapeHtml(p.title)}</h2><p class="student-goal"><b>Hoje eu vou:</b> ${escapeHtml(p.goal)}</p></div><div class="student-name">Nome: __________________________</div></header><h3>Minha sequência</h3><ol class="student-steps">${steps.map((x,i)=>`<li><span class="step-icon">${studentIconSvg(x)}</span><span><small>Etapa ${i+1}</small>${escapeHtml(x)}</span><span class="step-check">□</span></li>`).join('')}</ol><div class="student-info-grid"><div class="student-info safety-mini"><h4>Antes de começar</h4>${listHtml(safety)}</div><div class="student-info sensory-mini"><h4>Posso encontrar</h4>${listHtml(sensory)}</div><div class="student-info communication-mini"><h4>Se eu precisar</h4>${listHtml(communication)}</div></div><div class="student-record"><h3>Meu registro final</h3><p><b>O que observei ou aprendi?</b></p><div class="writing-lines"></div><p><b>Uma ideia importante desta aula:</b></p><div class="writing-lines short"></div></div></section>`;
 }
+
 function renderTeacher(p){
   return `<h2>Orientação do professor</h2><p><b>Aula:</b> ${escapeHtml(p.title)}</p><div class="output-grid"><div class="output-box"><h4>Antes da aula</h4>${listHtml(p.teacher.before)}</div><div class="output-box"><h4>Durante a aula</h4>${listHtml(p.teacher.during)}</div><div class="output-box"><h4>Depois da aula</h4>${listHtml(p.teacher.after)}</div><div class="output-box"><h4>Barreiras mapeadas</h4>${renderBarrierSummary(p.barriers)}</div></div><h3>Perguntas de mediação</h3>${listHtml(makeQuestions(p))}`;
 }
@@ -923,8 +1015,11 @@ function makeQuestions(p){
 }
 function renderCards(p){
   const c=p.cards;
-  return `<h2>Placas/cards para separar</h2><p>Separe apenas estes itens da caixa. Eles formam o Painel AulaAcessível da aula.</p><div class="output-grid"><div class="output-box"><h4>Rotina da aula</h4>${listHtml(c.rotina)}</div><div class="output-box"><h4>Segurança</h4>${listHtml(c.seguranca)}</div><div class="output-box"><h4>Sensorial</h4>${listHtml(c.sensorial)}</div><div class="output-box"><h4>Comunicação</h4>${listHtml(c.comunicacao)}</div></div><h3>Montagem sugerida do painel</h3><div class="print-card"><b>AULA DE HOJE</b><br>${escapeHtml(p.title)}</div><div class="print-card"><b>TRILHA DA AULA</b><br>${p.trail.map((x,i)=>`[${i+1}. ${escapeHtml(x)}]`).join(' → ')}</div><div class="print-card"><b>SEGURANÇA</b><br>${p.safety.map(x=>`[${escapeHtml(x)}]`).join(' ')}</div><div class="print-card"><b>SENSORIAL</b><br>${p.sensory.map(x=>`[${escapeHtml(x)}]`).join(' ')}</div><div class="print-card"><b>COMUNICAÇÃO</b><br>${p.communication.map(x=>`[${escapeHtml(x)}]`).join(' ')}</div><p class="source-note">Use um marcador móvel “AGORA” na trilha visual para indicar a etapa atual.</p>`;
+  const initial=(c.rotina||[]).slice(0,5);
+  const queue=(c.rotina||[]).slice(5);
+  return `<div class="output-intro"><div><span class="output-kicker">Kit físico</span><h2>Cards para separar</h2><p>Use os códigos para localizar cada card rapidamente. O painel principal mostra no máximo 5 etapas de rotina por vez.</p></div></div><div class="physical-rule"><b>Como montar:</b> coloque os 5 primeiros cards de rotina no painel. Guarde os demais em “PRÓXIMOS CARDS” e substitua os concluídos conforme a aula avança.</div><h3>Painel inicial</h3>${cardPillsHtml('rotina',initial)}${queue.length?`<h3>Próximos cards</h3>${cardPillsHtml('rotina',queue)}`:''}<div class="output-grid kit-grid"><div class="output-box safety-box"><h4>Segurança</h4>${cardListHtml('seguranca',c.seguranca)}</div><div class="output-box sensory-box"><h4>Avisos sensoriais</h4>${cardListHtml('sensorial',c.sensorial)}</div><div class="output-box communication-box"><h4>Comunicação — perto dos estudantes</h4>${cardListHtml('comunicacao',c.comunicacao)}<p class="box-note">Estes cards não precisam ocupar o painel principal.</p></div><div class="output-box marker-box"><h4>Marcadores</h4><ul class="coded-card-list"><li><span class="card-code neutral">M01</span><span>AGORA</span></li><li><span class="card-code neutral">M02</span><span>PAUSA</span></li><li><span class="card-code neutral">M03</span><span>FIM</span></li></ul></div></div><div class="panel-title-note"><b>AULA DE HOJE:</b> escreva o tema da aula na área apagável do painel: <span>${escapeHtml(p.title)}</span></div><p class="source-note"><b>Legenda:</b> R = Rotina · S = Segurança · SN = Sensorial · C = Comunicação.</p>`;
 }
+
 function renderChecklist(p){
   return `<h2>Checklist rápido</h2><div class="output-grid"><div class="output-box"><h4>Antes da aula</h4>${checklistHtml(['Plano gerado no app','Placas/cards separados','Materiais conferidos','Painel montado ou arquivo projetável aberto','Pausa/apoio combinados'])}</div><div class="output-box"><h4>Durante a aula</h4>${checklistHtml(['Apresentei a trilha','Mostrei cuidados de segurança','Avisei estímulos sensoriais','Movi o marcador AGORA','Permiti comunicação alternativa','Retomei a trilha quando necessário'])}</div><div class="output-box"><h4>Depois da aula</h4>${checklistHtml(['Limpeza/descarte orientados','Registro concluído','Cards recolhidos','Apoios avaliados','Plano salvo ou ajustado'])}</div><div class="output-box"><h4>Avaliação alternativa</h4>${listHtml(p.assessment)}</div></div>`;
 }
@@ -933,7 +1028,9 @@ function updateSummary(){
   const base=getBaseData();
   $('#summaryTitle').textContent = state.plan?.title || base.title || 'Nenhuma aula selecionada';
   const comp=state.mode==='model'?`${base.component} · Fase ${base.phase}`:state.mode==='guided'?'Criada pelo modo guiado':'Roteiro adaptado';
-  $('#summaryList').innerHTML = `<dt>Modo</dt><dd>${state.mode==='model'?'Modelo pronto':state.mode==='guided'?'Criar aula guiada':'Adaptar roteiro'}</dd><dt>Origem</dt><dd>${comp}</dd><dt>Conteúdos</dt><dd>${(base.contents||[]).slice(0,5).join(', ') || 'A definir'}</dd><dt>Cards previstos</dt><dd>${state.plan?Object.values(state.plan.cards).reduce((a,b)=>a+b.length,0):'—'} itens sugeridos</dd>`;
+  const totalCards = state.plan?Object.values(state.plan.cards).reduce((a,b)=>a+b.length,0):'—';
+  const routineCount = state.plan?.cards?.rotina?.length || 0;
+  $('#summaryList').innerHTML = `<dt>Modo</dt><dd>${state.mode==='model'?'Modelo pronto':state.mode==='guided'?'Criar aula guiada':'Adaptar roteiro'}</dd><dt>Origem</dt><dd>${comp}</dd><dt>Conteúdos</dt><dd>${(base.contents||[]).slice(0,4).join(', ') || 'A definir'}</dd><dt>Kit físico</dt><dd>${totalCards} cards sugeridos · ${Math.min(5,routineCount)} de rotina no painel inicial</dd>`;
 }
 
 function getPlainText(tab=state.outputTab){
@@ -948,6 +1045,12 @@ function getPlainText(tab=state.outputTab){
   sections.push(`\nBase/observação: ${p.source}`);
   return sections.join('\n\n');
 }
+function printStudentSheet(){
+  state.outputTab='student';
+  renderOutput();
+  saveLocal();
+  setTimeout(()=>window.print(),80);
+}
 function copyCurrentOutput(){ navigator.clipboard.writeText(getPlainText()).then(()=>toast('Texto copiado.')).catch(()=>toast('Não foi possível copiar.')); }
 function download(name, content, type='text/plain'){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
 function exportTxt(){ download(slug(state.plan.title)+'.txt', getPlainText('all')); }
@@ -960,7 +1063,7 @@ function loadJson(e){
 }
 function resetPlan(){
   if(!confirm('Criar um novo plano e limpar alterações salvas?')) return;
-  localStorage.removeItem('aulaAcessivelV4'); location.reload();
+  try{ localStorage.removeItem('aulaAcessivelV5'); localStorage.removeItem('aulaAcessivelV4'); }catch(e){} location.reload();
 }
 function slug(s){ return (s||'plano').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,80); }
 function escapeHtml(str){ return String(str||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -970,7 +1073,7 @@ function openProjector(){
 }
 function renderProjector(){
   const p=state.plan; if(!p) return;
-  $('#projectView').innerHTML = `<section class="project-slide"><p class="eyebrow">Aula de hoje</p><h2>${escapeHtml(p.title)}</h2><p><b>Objetivo:</b> ${escapeHtml(p.goal)}</p><h3>Trilha visual</h3>${timelineHtml(p.trail)}<div class="project-grid"><div><h3>Agora</h3><div class="output-box"><span class="marker">AGORA</span><h2>${escapeHtml(p.trail[state.nowIndex]||'')}</h2><p>Depois: ${escapeHtml(p.trail[state.nowIndex+1]||'concluir')}</p></div></div><div class="project-side"><div class="output-box"><h4>Segurança</h4>${listHtml(p.safety.slice(0,5))}</div><div class="output-box"><h4>Posso pedir</h4>${listHtml(p.communication.slice(0,5))}</div></div></div></section>`;
+  $('#projectView').innerHTML = `<section class="project-slide"><p class="eyebrow">Aula de hoje</p><h2>${escapeHtml(p.title)}</h2><p><b>Objetivo:</b> ${escapeHtml(p.goal)}</p><h3>Trilha visual</h3>${timelineHtml(p.trail,true)}<div class="project-grid"><div><h3>Agora</h3><div class="output-box current-focus"><span class="marker">AGORA</span><h2>${escapeHtml(p.trail[state.nowIndex]||'')}</h2><p>${p.trail[state.nowIndex+1]?`Depois: ${escapeHtml(p.trail[state.nowIndex+1])}`:'Última etapa da aula.'}</p></div></div><div class="project-side"><div class="output-box safety-box"><h4>Segurança</h4>${listHtml(p.safety.slice(0,4))}</div><div class="output-box communication-box"><h4>Se eu precisar</h4>${listHtml(p.communication.slice(0,4))}</div></div></div></section>`;
 }
 
 init();

@@ -104,3 +104,134 @@ textarea{resize:vertical;line-height:1.5}.full{grid-column:1/-1}
 @media (max-width:720px){.topbar{align-items:flex-start}.brand p{display:none}.top-actions{justify-content:flex-end}.hero>div:first-child{padding:20px}.hero-card{grid-template-columns:1fr}.steps{grid-template-columns:repeat(4,1fr);gap:6px}.step{padding:8px 4px;flex-direction:column}.step span{font-size:.78rem}.stage-panel{padding:14px;border-radius:18px}.mode-grid,.guided-layout,.barrier-grid,.editor-grid,.output-grid,.filters{grid-template-columns:1fr}.section-title{display:block}.section-title button{margin-top:12px}.output{padding:14px}.timeline-step{min-width:100%;}.project-slide{padding:18px;min-height:auto}.project-toolbar{justify-content:flex-start;overflow:auto}.use-actions{display:grid;grid-template-columns:1fr 1fr}.primary,.ghost,.file-label{white-space:normal}.brand-mark{width:40px;height:40px}.brand h1{font-size:1.08rem}}
 @media print{body{background:#fff}.topbar,.hero,.steps,.summary-card,.nav-buttons,.use-actions,.tabs,.section-title,.project-toolbar{display:none!important}.app-shell{padding:0}.workspace{display:block}.stage-panel{box-shadow:none;border:0;padding:0}.stage{display:none!important}.stage#stage4{display:block!important}.output{border:0;padding:0}.output-box,.timeline-step,.print-card{break-inside:avoid}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ===== AulaAcessível · refinamentos de usabilidade do protótipo ===== */
+:root{
+  --routine:#2f6db3;
+  --safety:#d96c1a;
+  --sensory:#b88900;
+  --communication:#2e8b57;
+  --petrol:#1b5e6a;
+}
+.hero{grid-template-columns:minmax(0,1fr) 330px;margin-top:4px}
+.hero>div:first-child{padding:24px 26px}
+.hero h2{font-size:clamp(1.8rem,3.3vw,2.8rem);line-height:1.02;max-width:820px}
+.hero-text{font-size:1rem;max-width:850px}
+.hero-card{padding:16px;gap:8px}
+.hero-card span{display:flex;align-items:center;gap:10px;background:#f8fafb;padding:10px 12px}
+.hero-card span b{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:var(--primary);color:#fff;font-size:.76rem;flex:0 0 auto}
+.mode-card{transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease}
+.mode-card:hover{transform:translateY(-1px);border-color:#b8cbd3}
+.mode-card.active{background:linear-gradient(180deg,#fff,#f7fbfc);position:relative}
+.mode-card.active::after{content:'Selecionado';position:absolute;top:12px;right:12px;font-size:.68rem;font-weight:850;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);background:#e7f4ef;padding:4px 7px;border-radius:999px}
+
+.barrier-group{position:relative}
+.barrier-group h4{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.barrier-count{font-size:.68rem;letter-spacing:.02em;text-transform:none;font-weight:800;color:var(--muted);background:var(--surface-2);border-radius:999px;padding:5px 8px;white-space:nowrap}
+.barrier-hint{margin:-5px 0 12px;font-size:.8rem;color:var(--muted);font-weight:600}
+.barrier-group.cognitivas{border-top:4px solid var(--routine)}
+.barrier-group.sensoriais{border-top:4px solid var(--sensory)}
+.barrier-group.comunicacionais{border-top:4px solid var(--communication)}
+.barrier-group.seguranca{border-top:4px solid var(--safety)}
+
+.editor-core{display:grid;grid-template-columns:1fr 1.35fr;gap:14px;margin-bottom:14px}
+.editor-core label,.edit-section,.edit-accordions details{background:#fff;border:1px solid var(--line);border-radius:18px}
+.editor-core label{padding:14px}
+.edit-section{padding:16px;margin-bottom:14px}
+.featured-edit{border-left:4px solid var(--routine)}
+.edit-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px}
+.edit-head h4{margin:3px 0 3px;font-size:1.05rem}
+.edit-head p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.4}
+.edit-kicker{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:var(--routine)}
+.edit-accordions{display:grid;gap:10px}
+.edit-accordions details{overflow:hidden}
+.edit-accordions summary,.secondary-actions summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;font-weight:850}
+.edit-accordions summary::-webkit-details-marker,.secondary-actions summary::-webkit-details-marker{display:none}
+.edit-accordions summary::after,.secondary-actions summary::after{content:'+';font-size:1.2rem;color:var(--muted)}
+.edit-accordions details[open] summary::after,.secondary-actions[open] summary::after{content:'−'}
+.edit-accordions summary small{color:var(--muted);font-weight:650}
+.compact-editors{padding:0 14px 14px}
+.detail-field{margin:0 14px 14px;padding:14px;background:#fbfcfd;border:1px solid var(--line);border-radius:14px}
+
+.student-action{border:1px solid #a7d0c0;border-radius:999px;padding:11px 16px;font-weight:850;background:#e9f5f0;color:#0f674e}
+.student-action:hover{background:#dff1e9}
+.main-use-actions{margin-bottom:8px}
+.secondary-actions{margin:0 0 18px;border:1px solid var(--line);border-radius:16px;background:#fbfcfd}
+.secondary-actions summary{padding:10px 14px;font-size:.86rem;color:var(--muted)}
+.secondary-actions .use-actions{padding:0 12px 12px;margin:0}
+
+.output-intro{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:6px}
+.output-kicker,.student-brand{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;font-weight:900;color:var(--petrol)}
+.auto-save{font-size:.76rem;color:#0f674e;background:#e9f5f0;border-radius:999px;padding:7px 10px;white-space:nowrap}
+.timeline-meta{font-size:.82rem;color:var(--muted);margin:8px 0 4px}
+.category-grid .output-box,.kit-grid .output-box{position:relative;overflow:hidden}
+.safety-box{border-top:4px solid var(--safety)}
+.sensory-box{border-top:4px solid var(--sensory)}
+.communication-box{border-top:4px solid var(--communication)}
+.marker-box{border-top:4px solid var(--gray)}
+.current-focus{border:2px solid var(--routine);background:#f6f9fe}
+
+.physical-rule{border:1px solid #bcd0da;background:#f2f7f9;border-radius:16px;padding:14px 16px;line-height:1.45;margin:14px 0 18px}
+.coded-card-list{list-style:none!important;padding:0!important;margin:8px 0!important;display:grid;gap:8px}
+.coded-card-list li{display:flex;align-items:center;gap:10px;margin:0!important;padding:8px 9px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.card-code{min-width:45px;text-align:center;font-size:.72rem;font-weight:950;letter-spacing:.04em;border-radius:9px;padding:6px 7px;background:#eaf3fb;color:#0f5c8c}
+.safety-box .card-code{background:#fff0e6;color:#a84e0b}
+.sensory-box .card-code{background:#fff8d9;color:#7b5a00}
+.communication-box .card-code{background:#e9f5f0;color:#176c4d}
+.card-code.neutral{background:#edf0f2;color:#4d5d67}
+.card-pills{display:flex;gap:9px;flex-wrap:wrap;margin:8px 0 14px}
+.card-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid #b9cdea;background:#f7faff;border-radius:13px;padding:10px 12px;font-weight:800}
+.card-pill b{font-size:.72rem;background:var(--routine);color:#fff;border-radius:8px;padding:5px 6px;letter-spacing:.03em}
+.box-note,.empty-note{color:var(--muted);font-size:.85rem;line-height:1.4}
+.panel-title-note{margin-top:16px;border:1px dashed #aac0c9;border-radius:14px;padding:12px 14px;background:#fbfcfd}
+.panel-title-note span{color:var(--muted)}
+
+/* Roteiro do aluno: informação funcional, sem decoração desnecessária */
+.student-sheet{max-width:900px;margin:0 auto;color:#1f2d36}
+.student-header{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:end;padding-bottom:14px;border-bottom:2px solid #d8e3e7}
+.student-header h2{font-size:1.7rem!important;line-height:1.12;margin:5px 0 8px!important}
+.student-goal{margin:0!important;color:#455863}
+.student-name{font-size:.9rem;white-space:nowrap}
+.student-sheet>h3,.student-record h3{font-size:1.08rem;letter-spacing:-.02em;margin:18px 0 10px}
+.student-steps{list-style:none;padding:0!important;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.student-steps li{display:grid;grid-template-columns:38px 1fr 28px;align-items:center;gap:10px;border:1px solid #dbe4e8;border-radius:14px;padding:10px 12px;margin:0!important;break-inside:avoid}
+.step-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#eef5f7;color:var(--petrol)}
+.step-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.student-steps li span:nth-child(2){font-weight:800;line-height:1.25}
+.student-steps small{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.step-check{font-size:1.35rem;color:#6d7d86;text-align:right}
+.student-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.student-info{border:1px solid var(--line);border-radius:14px;padding:12px;break-inside:avoid}
+.student-info h4{margin:0 0 7px;font-size:.88rem}
+.student-info ul{padding-left:18px;margin:0}
+.student-info li{font-size:.84rem;line-height:1.35;margin:4px 0}
+.safety-mini{border-top:4px solid var(--safety)}
+.sensory-mini{border-top:4px solid var(--sensory)}
+.communication-mini{border-top:4px solid var(--communication)}
+.student-record{margin-top:16px;border-top:1px solid var(--line);padding-top:2px;break-inside:avoid}
+.writing-lines{height:64px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,#cfd9dd 28px);margin-bottom:10px}
+.writing-lines.short{height:38px}
+
+@media (max-width:900px){
+  .editor-core{grid-template-columns:1fr}
+  .student-steps{grid-template-columns:1fr}
+  .student-info-grid{grid-template-columns:1fr}
+  .student-header{grid-template-columns:1fr}.student-name{white-space:normal}
+  .output-intro{display:block}.auto-save{display:inline-block;margin-top:8px}
+}
+
+@media print{
+  @page{margin:12mm}
+  body{font-family:Arial,Helvetica,sans-serif;color:#111}
+  .student-sheet{max-width:none}
+  .student-header{padding-bottom:8px}
+  .student-steps{grid-template-columns:1fr 1fr;gap:6px}
+  .student-steps li{padding:7px 9px;border-radius:10px}
+  .step-icon{width:30px;height:30px}
+  .step-icon svg{width:19px;height:19px}
+  .student-info-grid{gap:6px}
+  .student-info{padding:8px 10px}
+  .student-sheet>h3,.student-record h3{margin:12px 0 7px}
+  .auto-save,.timeline-meta{display:none!important}
+  .coded-card-list li,.card-pill,.student-steps li,.student-info{box-shadow:none!important}
+}
